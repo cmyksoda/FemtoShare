@@ -220,6 +220,92 @@ func (s Store) InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) 
 	return nil
 }
 
+// ReplaceEntryFile swaps an entry's file contents in place, keeping its ID so
+// existing share links stay valid.
+func (s Store) ReplaceEntryFile(id picoshare.EntryID, reader io.Reader, contentType picoshare.ContentType, filename picoshare.Filename) error {
+	log.Printf("replacing file contents of entry %s", id)
+
+	// Stage the new chunks under a throwaway ID so readers never see a
+	// half-written file.
+	stagingID := picoshare.NewEntryID()
+	w := file.NewWriter(s.db, stagingID, s.chunkSize)
+	written, err := io.Copy(w, reader)
+	if err != nil {
+		return err
+	}
+	if err := w.Close(); err != nil {
+		return err
+	}
+
+	tx, err := s.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			log.Printf("failed to rollback replace entry file: %v", err)
+		}
+	}()
+
+	// The orphan purge can delete staged chunks if it runs mid-write.
+	var stagedChunks int64
+	if err := tx.QueryRow(`
+	SELECT
+		COUNT(*)
+	FROM
+		entries_data
+	WHERE
+		id = :staging_id`, sql.Named("staging_id", stagingID.String())).Scan(&stagedChunks); err != nil {
+		return err
+	}
+	chunkSize := int64(s.chunkSize)
+	if expected := (written + chunkSize - 1) / chunkSize; stagedChunks != expected {
+		return fmt.Errorf("staged %d chunks for entry %s but expected %d", stagedChunks, id, expected)
+	}
+
+	res, err := tx.Exec(`
+	UPDATE entries
+	SET
+		content_type = :content_type,
+		filename = :filename
+	WHERE
+		id = :entry_id`,
+		sql.Named("content_type", contentType),
+		sql.Named("filename", filename),
+		sql.Named("entry_id", id.String()))
+	if err != nil {
+		return err
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return store.EntryNotFoundError{ID: id}
+	}
+
+	if _, err := tx.Exec(`
+	DELETE FROM
+		entries_data
+	WHERE
+		id = :entry_id`, sql.Named("entry_id", id.String())); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(`
+	UPDATE entries_data
+	SET
+		id = :entry_id
+	WHERE
+		id = :staging_id`,
+		sql.Named("entry_id", id.String()),
+		sql.Named("staging_id", stagingID.String())); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func parseDownloadPassphrase(raw *string) (picoshare.DownloadPassphrase, error) {
 	if raw == nil {
 		return picoshare.DownloadPassphrase{}, nil

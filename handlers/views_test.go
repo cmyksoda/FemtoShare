@@ -64,6 +64,7 @@ func TestIndexGetWritesRenderedTemplateAtomically(t *testing.T) {
 		nil,
 		nilSpaceCheckFunc,
 		nilGarbageCollector,
+		nilConversionStateFunc,
 		time.Now,
 	)
 	req := httptest.NewRequest(http.MethodGet, "/", nil)

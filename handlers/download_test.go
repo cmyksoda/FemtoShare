@@ -142,7 +142,7 @@ func TestEntryGet(t *testing.T) {
 				}
 			}
 
-			s := handlers.New(mockAuthenticator{}, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, time.Now)
+			s := handlers.New(mockAuthenticator{}, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, nilConversionStateFunc, time.Now)
 
 			req := httptest.NewRequest(http.MethodGet, tt.requestRoute, nil)
 
@@ -410,7 +410,7 @@ func TestProtectedEntryDownload(t *testing.T) {
 			if tt.authenticated {
 				authenticator = mockAuthenticator{}
 			}
-			s := handlers.New(authenticator, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, time.Now)
+			s := handlers.New(authenticator, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, nilConversionStateFunc, time.Now)
 
 			body := url.Values{"passphrase": {tt.passphrase}}.Encode()
 			req := httptest.NewRequest(tt.method, tt.route, strings.NewReader(body))
@@ -458,7 +458,7 @@ func TestProtectedEntryDownloadRequiresPassphraseEveryDownload(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("failed to insert protected entry: %v", err)
 	}
-	s := handlers.New(unauthenticatedAuthenticator{}, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, time.Now)
+	s := handlers.New(unauthenticatedAuthenticator{}, &dataStore, nilSpaceCheckFunc, nilGarbageCollector, nilConversionStateFunc, time.Now)
 
 	{
 		req := httptest.NewRequest(http.MethodPost, "/-PPPPPPPPPP/unlock", strings.NewReader("passphrase=correct+horse+battery+staple"))

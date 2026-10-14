@@ -12,6 +12,7 @@ COPY ./picoshare /app/picoshare
 COPY ./random /app/random
 COPY ./space /app/space
 COPY ./store /app/store
+COPY ./transcode /app/transcode
 COPY ./go.* /app/
 
 WORKDIR /app
@@ -49,9 +50,9 @@ RUN set -x && \
     mv "${litestream_binary_tgz_filename}" litestream.tgz
 RUN tar -xvzf litestream.tgz
 
-FROM alpine:3.15
+FROM alpine:3.22
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash ffmpeg
 
 COPY --from=builder /app/bin/picoshare /app/picoshare
 COPY --from=litestream_downloader /litestream/litestream /app/litestream

@@ -20,6 +20,7 @@ func (s *Server) routes() {
 
 	publicApis := s.router.PathPrefix("/api").Subrouter()
 	publicApis.HandleFunc("/guest/{guestLinkID}", s.guestEntryPost()).Methods(http.MethodPost)
+	publicApis.HandleFunc("/entry/{id}/conversion", s.entryConversionGet()).Methods(http.MethodGet)
 
 	static := s.router.PathPrefix("/").Subrouter()
 	static.PathPrefix("/css/").HandlerFunc(serveStaticResource()).Methods(http.MethodGet)

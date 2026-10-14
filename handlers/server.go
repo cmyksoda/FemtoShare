@@ -16,12 +16,13 @@ type (
 	}
 
 	Server struct {
-		router        *mux.Router
-		authenticator Authenticator
-		store         Store
-		checkSpace    SpaceCheckFunc
-		collector     *garbagecollect.Collector
-		now           NowFunc
+		router          *mux.Router
+		authenticator   Authenticator
+		store           Store
+		checkSpace      SpaceCheckFunc
+		collector       *garbagecollect.Collector
+		conversionState ConversionStateFunc
+		now             NowFunc
 	}
 )
 
@@ -32,14 +33,15 @@ func (s Server) Router() *mux.Router {
 
 // New creates a new server with all the state it needs to satisfy HTTP
 // requests.
-func New(authenticator Authenticator, store Store, checkSpace SpaceCheckFunc, collector *garbagecollect.Collector, now NowFunc) Server {
+func New(authenticator Authenticator, store Store, checkSpace SpaceCheckFunc, collector *garbagecollect.Collector, conversionState ConversionStateFunc, now NowFunc) Server {
 	s := Server{
-		router:        mux.NewRouter(),
-		authenticator: authenticator,
-		store:         store,
-		checkSpace:    checkSpace,
-		collector:     collector,
-		now:           now,
+		router:          mux.NewRouter(),
+		authenticator:   authenticator,
+		store:           store,
+		checkSpace:      checkSpace,
+		collector:       collector,
+		conversionState: conversionState,
+		now:             now,
 	}
 
 	s.routes()

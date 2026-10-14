@@ -78,7 +78,11 @@
 
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { guestUploadFile, uploadFile } from "/js/controllers/files.js";
+    import {
+      getConversionStatus,
+      guestUploadFile,
+      uploadFile,
+    } from "/js/controllers/files.js";
     import { showElement, hideElement } from "/js/lib/bulma.js";
     import { sortClipboardItems } from "/js/lib/clipboard.js";
 
@@ -98,6 +102,13 @@
       "download-passphrase",
     );
     const uploadAnotherBtn = document.getElementById("upload-another-btn");
+    const conversionEl = document.getElementById("conversion-status");
+    const conversionMessageEl = document.getElementById("conversion-message");
+    const conversionFailedEl = document.getElementById("conversion-failed");
+    const conversionMessages = {
+      pending: "Checking whether this video needs converting…",
+      converting: "Converting the video so it plays in every browser…",
+    };
 
     function getGuestLinkMetdata() {
       const el = document.getElementById("guest-link-metadata");
@@ -151,6 +162,33 @@
       }
     }
 
+    function showLinks(entryId, filename) {
+      const uploadLinksEl = document.createElement("upload-links");
+      uploadLinksEl.fileId = entryId;
+      uploadLinksEl.filename = filename;
+      uploadLinksEl.addEventListener("link-copied", () => {
+        document
+          .querySelector("snackbar-notifications")
+          .addInfoMessage("Copied link");
+      });
+      document.getElementById("result-links").append(uploadLinksEl);
+      document.title = "PicoShare - Complete";
+      showElement(resultEl);
+      showElement(uploadAnotherBtn);
+    }
+
+    async function waitForConversion(entryId) {
+      for (;;) {
+        const status = await getConversionStatus(entryId);
+        if (status.state === "ready" || status.state === "failed") {
+          return status;
+        }
+        conversionMessageEl.innerText = conversionMessages[status.state];
+        document.title = "PicoShare - Converting video";
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+
     function doUpload(file) {
       const guestLinkMetadata = getGuestLinkMetdata();
 
@@ -194,22 +232,34 @@
 
           populateEditButton(entryId);
 
-          const uploadLinksEl = document.createElement("upload-links");
-          uploadLinksEl.fileId = entryId;
-          uploadLinksEl.filename = file.name;
-          uploadLinksEl.addEventListener("link-copied", () => {
-            document
-              .querySelector("snackbar-notifications")
-              .addInfoMessage("Copied link");
-          });
-          document.getElementById("result-links").append(uploadLinksEl);
-          showElement(resultEl);
-          showElement(uploadAnotherBtn);
-
           uploadEl.style.display = "none";
           if (expirationContainer) {
             expirationContainer.style.display = "none";
           }
+
+          if (!file.type.startsWith("video/")) {
+            showLinks(entryId, file.name);
+            return;
+          }
+
+          hideElement(progressSpinner);
+          showElement(conversionEl);
+          return waitForConversion(entryId)
+            .then((status) => {
+              if (status.state === "failed") {
+                showElement(conversionFailedEl);
+              }
+              showLinks(entryId, status.filename || file.name);
+            })
+            .catch((error) => {
+              document.getElementById("error-message").innerText =
+                `Couldn't check whether the video finished converting: ${error}`;
+              showElement(errorContainer);
+              showLinks(entryId, file.name);
+            })
+            .finally(() => {
+              hideElement(conversionEl);
+            });
         })
         .catch((error) => {
           document.getElementById("error-message").innerText = error;
@@ -452,9 +502,29 @@
     </div>
   </div>
 
+  <div id="conversion-status" class="d-none">
+    <div class="alert alert-warning" role="status">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <strong id="conversion-message">
+          Checking whether this video needs converting…
+        </strong>
+      </div>
+      <div class="mt-2">
+        The link isn't ready to share yet. It will appear here when the video is
+        done.
+      </div>
+    </div>
+  </div>
+
   <div id="upload-result" class="d-none">
     <div class="alert alert-primary" role="alert">
       <div class="message-body">Upload complete!</div>
+    </div>
+
+    <div id="conversion-failed" class="d-none alert alert-danger" role="alert">
+      The video couldn't be converted, so it's shared as uploaded and may not
+      play in every browser.
     </div>
 
     <div id="result-links"></div>

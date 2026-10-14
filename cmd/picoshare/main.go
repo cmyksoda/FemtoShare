@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +22,24 @@ import (
 	"github.com/mtlynch/picoshare/picoshare"
 	"github.com/mtlynch/picoshare/space"
 	"github.com/mtlynch/picoshare/store/sqlite"
+	"github.com/mtlynch/picoshare/transcode"
 )
+
+// transcodingStore queues every uploaded video for conversion once it's saved.
+type transcodingStore struct {
+	*sqlite.Store
+	videoQueue *transcode.Queue
+}
+
+func (s transcodingStore) InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) error {
+	if err := s.Store.InsertEntry(reader, metadata); err != nil {
+		return err
+	}
+	if transcode.IsVideo(metadata.ContentType) {
+		s.videoQueue.Enqueue(metadata.ID)
+	}
+	return nil
+}
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
@@ -51,7 +69,12 @@ func main() {
 	gc := garbagecollect.NewScheduler(&collector, 7*time.Hour)
 	gc.StartAsync()
 
-	server := handlers.New(authenticator, &store, spaceChecker.Check, &collector, time.Now)
+	videoQueue := transcode.NewQueue(&store)
+	if err := videoQueue.EnqueueExistingVideos(); err != nil {
+		log.Printf("failed to queue existing videos for conversion: %v", err)
+	}
+
+	server := handlers.New(authenticator, transcodingStore{&store, videoQueue}, spaceChecker.Check, &collector, videoQueue.State, time.Now)
 
 	// CrossOriginProtection rejects non-safe cross-origin requests to prevent CSRF.
 	protectedRouter := http.NewCrossOriginProtection().Handler(server.Router())

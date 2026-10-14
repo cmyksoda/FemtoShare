@@ -145,3 +145,11 @@ export async function deleteFile(id) {
       return Promise.reject(error);
     });
 }
+
+export async function getConversionStatus(id) {
+  const res = await fetch(`/api/entry/${encodeURIComponent(id)}/conversion`);
+  if (!res.ok) {
+    throw new Error((await res.text()) || res.statusText);
+  }
+  return res.json();
+}
