@@ -17,6 +17,10 @@ var staticFS embed.FS
 // stable ETag for each resource without hashing every resource at startup.
 var staticETagSeed = time.Now().String()
 
+// staticVersion goes in static asset URLs so browsers and CDNs never pair a new
+// page with a cached script from an older release.
+var staticVersion = fmt.Sprintf("%x", sha256.Sum256([]byte(staticETagSeed)))[:12]
+
 // serveStaticResource serves any static file under the ./handlers/static
 // directory.
 func serveStaticResource() http.HandlerFunc {

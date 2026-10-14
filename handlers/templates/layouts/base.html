@@ -16,13 +16,17 @@
       href="/third-party/google-fonts/css/fonts.css"
     />
     <link href="/third-party/fontawesome6/css/all.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/css/style.css?v={{ staticVersion }}"
+    />
     {{ block "style-tags" . }}{{ end }}
     <script
       src="/third-party/bootstrap@5.3.8/bootstrap.bundle.min.js"
       defer
     ></script>
-    <script type="module" src="/js/navbar.js"></script>
+    <script type="module" src="/js/navbar.js?v={{ staticVersion }}"></script>
     {{ block "script-tags" . }}{{ end }}
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />

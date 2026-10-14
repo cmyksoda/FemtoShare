@@ -1,6 +1,6 @@
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { authenticate, logOut } from "/js/controllers/auth.js";
+    import { authenticate, logOut } from "/js/controllers/auth.js?v={{ staticVersion }}";
 
     function setAuthFormState(isEnabled) {
       document.querySelectorAll("#auth-form input").forEach((el) => {

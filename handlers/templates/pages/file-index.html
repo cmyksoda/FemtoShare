@@ -33,9 +33,9 @@
 
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { showElement, hideElement } from "/js/lib/bulma.js";
-    import { copyToClipboard } from "/js/lib/clipboard.js";
-    import { makeShortLink } from "/js/lib/links.js";
+    import { showElement, hideElement } from "/js/lib/bulma.js?v={{ staticVersion }}";
+    import { copyToClipboard } from "/js/lib/clipboard.js?v={{ staticVersion }}";
+    import { makeShortLink } from "/js/lib/links.js?v={{ staticVersion }}";
 
     const errorContainer = document.getElementById("error");
 

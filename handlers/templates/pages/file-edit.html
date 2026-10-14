@@ -1,8 +1,8 @@
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { editFile } from "/js/controllers/files.js";
-    import { showElement, hideElement } from "/js/lib/bulma.js";
-    import { enableElement, disableElement } from "/js/lib/html.js";
+    import { editFile } from "/js/controllers/files.js?v={{ staticVersion }}";
+    import { showElement, hideElement } from "/js/lib/bulma.js?v={{ staticVersion }}";
+    import { enableElement, disableElement } from "/js/lib/html.js?v={{ staticVersion }}";
 
     const editForm = document.getElementById("edit-form");
     const errorContainer = document.getElementById("error");

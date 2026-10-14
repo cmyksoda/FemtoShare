@@ -1,8 +1,8 @@
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { guestLinkNew } from "/js/controllers/guestLinks.js";
-    import { showElement, hideElement } from "/js/lib/bulma.js";
-    import { enableElement, disableElement } from "/js/lib/html.js";
+    import { guestLinkNew } from "/js/controllers/guestLinks.js?v={{ staticVersion }}";
+    import { showElement, hideElement } from "/js/lib/bulma.js?v={{ staticVersion }}";
+    import { enableElement, disableElement } from "/js/lib/html.js?v={{ staticVersion }}";
 
     const labelInput = document.getElementById("label");
     const expirationSelect = document.getElementById("expiration-select");

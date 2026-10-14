@@ -8,8 +8,8 @@
 
 {{ define "script-tags" }}
   <script type="module" nonce="{{ .CspNonce }}">
-    import { deleteFile } from "/js/controllers/files.js";
-    import { showElement, hideElement } from "/js/lib/bulma.js";
+    import { deleteFile } from "/js/controllers/files.js?v={{ staticVersion }}";
+    import { showElement, hideElement } from "/js/lib/bulma.js?v={{ staticVersion }}";
 
     const deleteForm = document.getElementById("delete-form");
     const errorContainer = document.getElementById("error");

@@ -82,9 +82,9 @@
       getConversionStatus,
       guestUploadFile,
       uploadFile,
-    } from "/js/controllers/files.js";
-    import { showElement, hideElement } from "/js/lib/bulma.js";
-    import { sortClipboardItems } from "/js/lib/clipboard.js";
+    } from "/js/controllers/files.js?v={{ staticVersion }}";
+    import { showElement, hideElement } from "/js/lib/bulma.js?v={{ staticVersion }}";
+    import { sortClipboardItems } from "/js/lib/clipboard.js?v={{ staticVersion }}";
 
     const uploadEl = document.querySelector(".file");
     const resultEl = document.getElementById("upload-result");
@@ -242,6 +242,7 @@
             return;
           }
 
+          hideElement(progressBar);
           hideElement(progressSpinner);
           showElement(conversionEl);
           return waitForConversion(entryId)
@@ -376,8 +377,7 @@
       // cursor in the right place.
       pasteEl.focus();
     });
-  </script>
-  {{ if .GuestLinkMetadata.ID }}
+  </script> {{ if .GuestLinkMetadata.ID }}
     <script type="application/json" id="guest-link-metadata">
       {
         "id": "{{ .GuestLinkMetadata.ID }}",

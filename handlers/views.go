@@ -746,6 +746,7 @@ func parseTemplates(templatePaths ...string) *template.Template {
 }
 
 func parseTemplatesWithFuncs(fns template.FuncMap, templatePaths ...string) *template.Template {
+	fns["staticVersion"] = func() string { return staticVersion }
 	return template.Must(
 		template.New("base.html").
 			Funcs(fns).

@@ -42,7 +42,7 @@
 </template>
 
 <script type="module" nonce="{{ .CspNonce }}">
-  import { copyToClipboard } from "/js/lib/clipboard.js";
+  import { copyToClipboard } from "/js/lib/clipboard.js?v={{ staticVersion }}";
 
   (function () {
     const template = document.querySelector("#upload-link-box-template");
