@@ -24,7 +24,7 @@ FemtoShare works just like PicoShare, with a few changes:
 | **Videos**        | Shared exactly as uploaded, so some phone videos (HEVC, HDR, or very tall screen recordings) don't play in every browser | Converted to an MP4 that plays in every browser, which also removes metadata like location. The upload page shows the link once the video is ready |
 | **Disk space**    | Space from deleted files stays reserved until you shrink the database by hand                                            | Space from deleted files and converted videos goes back to your disk right away                                                                    |
 | **After updates** | Browsers and CDNs can keep using old scripts for a few hours                                                             | Each update gets fresh script URLs, so pages never mix old and new code                                                                            |
-| **Look**          | Green pS icon                                                                                                            | Soft magenta fS icon                                                                                                                               |
+| **Look**          | Green pS icon and green buttons                                                                                          | Soft magenta fS icon and matching magenta buttons                                                                                                  |
 
 Everything else is the same, including settings and the database, so you can switch from PicoShare by changing the Docker image to `cmyksoda/femtoshare`.
 

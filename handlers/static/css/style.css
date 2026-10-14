@@ -6,6 +6,22 @@
   --navbar-brand-color: #555;
   --navbar-link-color: #666;
   --navbar-link-hover-color: #4b4b4b;
+  /* Each magenta keeps the HSL offset its Bootstrap green had from the old
+     #82ca9c favicon, measured against the #d47fd4 favicon instead. */
+  --bs-success: #95127e;
+  --bs-success-rgb: 149, 18, 126;
+}
+
+.btn-success {
+  --bs-btn-bg: #95127e;
+  --bs-btn-border-color: #95127e;
+  --bs-btn-hover-bg: #800f6c;
+  --bs-btn-hover-border-color: #780f66;
+  --bs-btn-focus-shadow-rgb: 168, 52, 148;
+  --bs-btn-active-bg: #780f66;
+  --bs-btn-active-border-color: #710e5f;
+  --bs-btn-disabled-bg: #95127e;
+  --bs-btn-disabled-border-color: #95127e;
 }
 
 body {
