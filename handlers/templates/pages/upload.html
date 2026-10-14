@@ -372,10 +372,6 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       resetPasteInstructions();
-      // Set initial focus to paste element so that if the user pastes on page load,
-      // it pastes to the right place without them having to manually place the
-      // cursor in the right place.
-      pasteEl.focus();
     });
   </script> {{ if .GuestLinkMetadata.ID }}
     <script type="application/json" id="guest-link-metadata">
