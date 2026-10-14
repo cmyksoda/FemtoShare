@@ -100,3 +100,16 @@ func TestMp4Filename(t *testing.T) {
 		})
 	}
 }
+
+func TestFfmpegArgsUseMaxH264Level(t *testing.T) {
+	args := videoProbe{Streams: []probeStream{{CodecType: "video"}}}.ffmpegArgs("in", "out")
+	for i, arg := range args {
+		if arg == "-level:v" {
+			if got, want := args[i+1], "4.2"; got != want {
+				t.Errorf("-level:v=%q, want=%q", got, want)
+			}
+			return
+		}
+	}
+	t.Error("ffmpeg args are missing -level:v")
+}

@@ -119,7 +119,7 @@ func (p videoProbe) ffmpegArgs(inputPath, outputPath string) []string {
 		"-preset", "veryfast",
 		"-crf", "23",
 		"-profile:v", "high",
-		"-level:v", "4.2",
+		"-level:v", fmt.Sprintf("%d.%d", maxH264Level/10, maxH264Level%10),
 		"-fpsmax", "60",
 		"-fps_mode", "cfr",
 		"-color_primaries", "bt709",
