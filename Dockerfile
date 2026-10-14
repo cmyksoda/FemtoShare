@@ -2,18 +2,9 @@ FROM golang:1.26.1 AS builder
 
 ARG TARGETPLATFORM
 
-COPY ./.git /app/.git
-COPY ./build /app/build
-COPY ./cmd /app/cmd
-COPY ./dev-scripts /app/dev-scripts
-COPY ./garbagecollect /app/garbagecollect
-COPY ./handlers /app/handlers
-COPY ./femtoshare /app/femtoshare
-COPY ./random /app/random
-COPY ./space /app/space
-COPY ./store /app/store
-COPY ./transcode /app/transcode
-COPY ./go.* /app/
+# Copy the whole checkout so Go's VCS stamp only reports a dirty tree when the
+# working tree really is dirty.
+COPY . /app
 
 WORKDIR /app
 

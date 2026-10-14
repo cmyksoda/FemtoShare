@@ -2,7 +2,7 @@
 
 FemtoShare is a fork of [PicoShare](https://github.com/mtlynch/picoshare) by Michael Lynch that converts uploaded videos so they play in every browser.
 
-[![Docker Image Size](https://img.shields.io/docker/image-size/cmyksoda/femtoshare/latest)](https://hub.docker.com/r/cmyksoda/femtoshare/)
+[![Docker Version](https://img.shields.io/docker/v/cmyksoda/femtoshare?sort=semver&maxAge=86400)](https://hub.docker.com/r/cmyksoda/femtoshare/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cmyksoda/femtoshare.svg?maxAge=604800)](https://hub.docker.com/r/cmyksoda/femtoshare/)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/cmyksoda/FemtoShare)](https://github.com/cmyksoda/FemtoShare/commits/main)
 [![GitHub last commit](https://img.shields.io/github/last-commit/cmyksoda/FemtoShare)](https://github.com/cmyksoda/FemtoShare/commits/main)
