@@ -63,19 +63,20 @@ func New(params Params) Store {
 	}
 
 	applyMigrations(db)
-	enableIncrementalVacuum(db)
 
 	chunkSize := params.PicoShareChunkSize
 	if chunkSize == 0 {
 		chunkSize = defaultChunkSize
 	}
 
-	return Store{
+	s := Store{
 		db:                    db,
 		chunkSize:             chunkSize,
 		optimizeForLitestream: params.OptimizeForLitestream,
 		now:                   params.Now,
 	}
+	s.enableIncrementalVacuum()
+	return s
 }
 
 func formatExpirationTime(et picoshare.ExpirationTime) string {

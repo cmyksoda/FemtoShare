@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"database/sql"
 	"log"
 )
 
@@ -9,9 +8,9 @@ const autoVacuumIncremental = 2
 
 // enableIncrementalVacuum lets the database file shrink after deletions. An
 // existing database only switches modes after one full VACUUM.
-func enableIncrementalVacuum(db *sql.DB) {
+func (s Store) enableIncrementalVacuum() {
 	var mode int
-	if err := db.QueryRow(`PRAGMA auto_vacuum`).Scan(&mode); err != nil {
+	if err := s.db.QueryRow(`PRAGMA auto_vacuum`).Scan(&mode); err != nil {
 		log.Fatalf("failed to read auto_vacuum mode: %v", err)
 	}
 	if mode == autoVacuumIncremental {
@@ -20,12 +19,13 @@ func enableIncrementalVacuum(db *sql.DB) {
 
 	log.Printf("compacting database to enable incremental vacuuming, which may take a while")
 	// Both statements must run on the same connection for the mode to stick.
-	if _, err := db.Exec(`
+	if _, err := s.db.Exec(`
 		PRAGMA auto_vacuum = INCREMENTAL;
 		VACUUM;
 		`); err != nil {
 		log.Fatalf("failed to enable incremental vacuuming: %v", err)
 	}
+	s.truncateWAL()
 }
 
 // reclaimFreeSpace returns pages freed by deleted file data to the filesystem.
@@ -43,8 +43,13 @@ func (s Store) reclaimFreeSpace() {
 	}
 	rows.Close()
 
-	// In WAL mode, the file only shrinks at a checkpoint, but Litestream must
-	// own checkpoints.
+	s.truncateWAL()
+}
+
+// truncateWAL shrinks the database file and empties the WAL, since in WAL mode
+// neither happens until a checkpoint.
+func (s Store) truncateWAL() {
+	// Litestream must own checkpoints.
 	if s.optimizeForLitestream {
 		return
 	}

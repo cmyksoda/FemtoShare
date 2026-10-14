@@ -58,6 +58,10 @@ func TestNewEnablesIncrementalVacuumOnExistingDatabase(t *testing.T) {
 
 	sqlite.New(sqlite.Params{Path: path, Now: time.Now})
 
+	if info, err := os.Stat(path + "-wal"); err == nil && info.Size() != 0 {
+		t.Errorf("WAL is %d bytes after compacting, want 0", info.Size())
+	}
+
 	db, err = sql.Open("sqlite3", path)
 	if err != nil {
 		t.Fatalf("failed to reopen database: %v", err)
