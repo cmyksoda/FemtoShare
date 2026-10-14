@@ -15,6 +15,19 @@ FemtoShare is a minimalist, self-hosted web app that makes it easy to share file
 
 [![FemtoShare demo](https://raw.githubusercontent.com/cmyksoda/FemtoShare/main/docs/readme-assets/demo.gif)](https://raw.githubusercontent.com/cmyksoda/FemtoShare/main/docs/readme-assets/demo-full.gif)
 
+## FemtoShare vs PicoShare
+
+FemtoShare works just like PicoShare, with a few changes:
+
+|                   | PicoShare                                                                                                                | FemtoShare                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Videos**        | Shared exactly as uploaded, so some phone videos (HEVC, HDR, or very tall screen recordings) don't play in every browser | Converted to an MP4 that plays in every browser, which also removes metadata like location. The upload page shows the link once the video is ready |
+| **Disk space**    | Space from deleted files stays reserved until you shrink the database by hand                                            | Space from deleted files and converted videos goes back to your disk right away                                                                    |
+| **After updates** | Browsers and CDNs can keep using old scripts for a few hours                                                             | Each update gets fresh script URLs, so pages never mix old and new code                                                                            |
+| **Look**          | Green pS icon                                                                                                            | Soft magenta fS icon                                                                                                                               |
+
+Everything else is the same, including settings and the database, so you can switch from PicoShare by changing the Docker image to `cmyksoda/femtoshare`.
+
 ## Why FemtoShare?
 
 There are a million services for sharing files, but none of them are quite like FemtoShare. Here are FemtoShare's advantages:
@@ -136,26 +149,8 @@ If you rebuild the Docker image from source, you can adjust the build behavior w
 | -------------------- | --------------------------------------------------------------------------- | ------------- |
 | `litestream_version` | Version of [Litestream](https://litestream.io/) to use for data replication | `0.3.13`      |
 
-## PicoShare's scope and future
-
-PicoShare is maintained by Michael Lynch as a hobby project.
-
-Due to time limitations, I keep PicoShare's scope limited to only the features that fit into my workflows. That unfortunately means that I sometimes reject proposals or contributions for perfectly good features. It's nothing against those features, but I only have bandwidth to maintain features that I use.
-
 ## Deployment
 
 FemtoShare is easy to deploy to cloud hosting platforms:
 
 - [fly.io](docs/deployment/fly.io.md)
-
-## Third-party clients
-
-These clients are built and maintained by third parties, not by the PicoShare project:
-
-- [picaroa](https://www.picaroa.app) - Native iOS client for PicoShare
-
-## Tips and tricks
-
-### Reclaiming reserved database space
-
-FemtoShare gives the space from deleted files and converted videos back to your filesystem automatically, so its database shrinks right away.

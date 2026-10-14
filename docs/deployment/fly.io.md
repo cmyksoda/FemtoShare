@@ -1,6 +1,8 @@
 # Deploy to fly.io
 
-fly.io is a fantastic host for FemtoShare. You can run up to three instances 24/7 for a month under their free tier, which includes free SSL certificates and 3 GB of persistent disk.
+fly.io is a fantastic host for FemtoShare, with free SSL certificates and persistent disk.
+
+Video conversion uses a lot of CPU, so videos take longer to become ready on fly.io's smallest machines.
 
 ## Pre-requisites
 
@@ -31,7 +33,7 @@ You can add a persistent volume to store FemtoShare's data across server deploys
 **Note**: You'll need either a persistent volume or Litestream replication ([below](#set-your-litestream-environment-variables-optional)) to prevent FemtoShare from losing all data on every server redeploy.
 
 ```bash
-VOLUME_NAME='pico_data'
+VOLUME_NAME='femto_data'
 SIZE_IN_GB=3 # This is the limit of fly.io's free tier as of 2022-02-19
 
 fly volumes create "${VOLUME_NAME}" \
@@ -70,10 +72,10 @@ In your `fly.toml` file, add the following lines in the `[env]` section:
   LITESTREAM_ENDPOINT="YOUR-CLOUD-STORAGE-ENDPOINT"
 ```
 
-For example, if you had a bucket called `my-pico-bucket` on Backblaze B2's `us-west-002` region, your config would look like this:
+For example, if you had a bucket called `my-femto-bucket` on Backblaze B2's `us-west-002` region, your config would look like this:
 
 ```toml
-LITESTREAM_BUCKET="my-pico-bucket"
+LITESTREAM_BUCKET="my-femto-bucket"
 LITESTREAM_ENDPOINT="s3.us-west-002.backblazeb2.com"
 ```
 
