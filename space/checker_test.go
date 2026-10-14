@@ -4,16 +4,16 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mtlynch/picoshare/space"
-	"github.com/mtlynch/picoshare/space/checkers"
+	"github.com/cmyksoda/femtoshare/space"
+	"github.com/cmyksoda/femtoshare/space/checkers"
 )
 
 type mockFileSystemChecker struct {
-	usage checkers.PicoShareUsage
+	usage checkers.FemtoShareUsage
 	err   error
 }
 
-func (c mockFileSystemChecker) MeasureUsage() (checkers.PicoShareUsage, error) {
+func (c mockFileSystemChecker) MeasureUsage() (checkers.FemtoShareUsage, error) {
 	return c.usage, c.err
 }
 
@@ -31,7 +31,7 @@ func TestCheck(t *testing.T) {
 	dummyDatabaseErr := errors.New("dummy database checker error")
 	for _, tt := range []struct {
 		description   string
-		fsUsage       checkers.PicoShareUsage
+		fsUsage       checkers.FemtoShareUsage
 		fsErr         error
 		dbUsage       uint64
 		dbErr         error
@@ -40,12 +40,12 @@ func TestCheck(t *testing.T) {
 	}{
 		{
 			description: "aggregates checker results correctly",
-			fsUsage: checkers.PicoShareUsage{
+			fsUsage: checkers.FemtoShareUsage{
 				FileSystemUsage: checkers.FileSystemUsage{
 					UsedBytes:  70,
 					TotalBytes: 100,
 				},
-				PicoShareDbFileSize: 65,
+				FemtoShareDbFileSize: 65,
 			},
 			fsErr:   nil,
 			dbUsage: 60,
@@ -60,7 +60,7 @@ func TestCheck(t *testing.T) {
 		},
 		{
 			description:   "returns error when filesystem checker fails",
-			fsUsage:       checkers.PicoShareUsage{},
+			fsUsage:       checkers.FemtoShareUsage{},
 			fsErr:         dummyFileSystemErr,
 			dbUsage:       5,
 			dbErr:         nil,
@@ -69,8 +69,8 @@ func TestCheck(t *testing.T) {
 		},
 		{
 			description: "returns error when database checker fails",
-			fsUsage: checkers.PicoShareUsage{
-				PicoShareDbFileSize: 3,
+			fsUsage: checkers.FemtoShareUsage{
+				FemtoShareDbFileSize: 3,
 				FileSystemUsage: checkers.FileSystemUsage{
 					UsedBytes:  5,
 					TotalBytes: 7,

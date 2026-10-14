@@ -1,39 +1,42 @@
-# PicoShare
+# FemtoShare
 
-[![CircleCI](https://circleci.com/gh/mtlynch/picoshare.svg?style=svg)](https://circleci.com/gh/mtlynch/picoshare)
-[![Docker Version](https://img.shields.io/docker/v/mtlynch/picoshare?sort=semver&maxAge=86400)](https://hub.docker.com/r/mtlynch/picoshare/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mtlynch/picoshare.svg?maxAge=604800)](https://hub.docker.com/r/mtlynch/picoshare/)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/mtlynch/picoshare)](https://github.com/mtlynch/picoshare/commits/master)
-[![GitHub last commit](https://img.shields.io/github/last-commit/mtlynch/picoshare)](https://github.com/mtlynch/picoshare/commits/master)
-[![Contributors](https://img.shields.io/github/contributors/mtlynch/picoshare)](https://github.com/mtlynch/picoshare/graphs/contributors)
+FemtoShare is a fork of [PicoShare](https://github.com/mtlynch/picoshare) by Michael Lynch that converts uploaded videos so they play in every browser.
+
+[![Docker Image Size](https://img.shields.io/docker/image-size/cmyksoda/femtoshare/latest)](https://hub.docker.com/r/cmyksoda/femtoshare/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/cmyksoda/femtoshare.svg?maxAge=604800)](https://hub.docker.com/r/cmyksoda/femtoshare/)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/cmyksoda/FemtoShare)](https://github.com/cmyksoda/FemtoShare/commits/main)
+[![GitHub last commit](https://img.shields.io/github/last-commit/cmyksoda/FemtoShare)](https://github.com/cmyksoda/FemtoShare/commits/main)
+[![Contributors](https://img.shields.io/github/contributors/cmyksoda/FemtoShare)](https://github.com/cmyksoda/FemtoShare/graphs/contributors)
 [![License](http://img.shields.io/:license-agpl-blue.svg?style=flat-square)](LICENSE)
 
 ## Overview
 
-PicoShare is a minimalist, self-hosted web app that makes it easy to share files on the web without restrictions on size, file type, or media format.
+FemtoShare is a minimalist, self-hosted web app that makes it easy to share files on the web without restrictions on size, file type, or media format.
 
-[![PicoShare demo](https://raw.githubusercontent.com/mtlynch/picoshare/master/docs/readme-assets/demo.gif)](https://raw.githubusercontent.com/mtlynch/picoshare/master/docs/readme-assets/demo-full.gif)
+[![FemtoShare demo](https://raw.githubusercontent.com/cmyksoda/FemtoShare/main/docs/readme-assets/demo.gif)](https://raw.githubusercontent.com/cmyksoda/FemtoShare/main/docs/readme-assets/demo-full.gif)
 
-## Why PicoShare?
+## Why FemtoShare?
 
-There are a million services for sharing files, but none of them are quite like PicoShare. Here are PicoShare's advantages:
+There are a million services for sharing files, but none of them are quite like FemtoShare. Here are FemtoShare's advantages:
 
-- **Direct download links**: PicoShare gives you a direct download link you can share with anyone. They can view or download the file with no ads or signups.
-- **No file restrictions**: Unlike sites like imgur, Vimeo, or SoundCloud that only allow you to share specific types of files, PicoShare lets you share any file of any size.
-- **No resizing/re-encoding**: If you upload media like images, video, or audio, PicoShare never forces you to wait on re-encoding. You get a direct download link as soon as you upload the file, and PicoShare never resizes or re-encodes your file.
+- **Direct download links**: FemtoShare gives you a direct download link you can share with anyone. They can view or download the file with no ads or signups.
+- **No file restrictions**: Unlike sites like imgur, Vimeo, or SoundCloud that only allow you to share specific types of files, FemtoShare lets you share any file of any size.
+- **Videos that play everywhere**: FemtoShare converts uploaded videos to MP4 so they play in every browser, and the upload page holds back the link until the video is ready. Other files are never resized or re-encoded.
 
-## Run PicoShare
+## Run FemtoShare
 
 ### From source
 
 ```bash
 PS_SHARED_SECRET=somesecretpass PORT=4001 \
-  go run cmd/picoshare/main.go
+  go run cmd/femtoshare/main.go
 ```
+
+Video conversion requires `ffmpeg` and `ffprobe` on your `PATH`. The Docker image includes them.
 
 ### From Docker
 
-To run PicoShare within a Docker container, mount a volume from your local system to store the PicoShare sqlite database.
+To run FemtoShare within a Docker container, mount a volume from your local system to store the FemtoShare sqlite database.
 
 ```bash
 docker run \
@@ -41,15 +44,15 @@ docker run \
   --env "PS_SHARED_SECRET=somesecretpass" \
   --publish 4001:4001/tcp \
   --volume "${PWD}/data:/data" \
-  --name picoshare \
-  mtlynch/picoshare
+  --name femtoshare \
+  cmyksoda/femtoshare
 ```
 
 ### From Docker + cloud data replication
 
-If you specify settings for a [Litestream](https://litestream.io/)-compatible cloud storage location, PicoShare will automatically replicate your data.
+If you specify settings for a [Litestream](https://litestream.io/)-compatible cloud storage location, FemtoShare will automatically replicate your data.
 
-You can kill the container and start it later, and PicoShare will restore your data from the cloud storage location and continue as if there was no interruption.
+You can kill the container and start it later, and FemtoShare will restore your data from the cloud storage location and continue as if there was no interruption.
 
 ```bash
 PORT=4001
@@ -67,24 +70,24 @@ docker run \
   --env "LITESTREAM_SECRET_ACCESS_KEY=${LITESTREAM_SECRET_ACCESS_KEY}" \
   --env "LITESTREAM_BUCKET=${LITESTREAM_BUCKET}" \
   --env "LITESTREAM_ENDPOINT=${LITESTREAM_ENDPOINT}" \
-  --name picoshare \
-  mtlynch/picoshare
+  --name femtoshare \
+  cmyksoda/femtoshare
 ```
 
 Notes:
 
 - Only run one Docker container for each Litestream location.
-  - PicoShare can't sync writes across multiple instances.
+  - FemtoShare can't sync writes across multiple instances.
 
 ### Using Docker Compose
 
-To run PicoShare under docker-compose, copy the following to a file called `docker-compose.yml` and then run `docker-compose up`.
+To run FemtoShare under docker-compose, copy the following to a file called `docker-compose.yml` and then run `docker-compose up`.
 
 ```yaml
 version: "3.2"
 services:
-  picoshare:
-    image: mtlynch/picoshare
+  femtoshare:
+    image: cmyksoda/femtoshare
     environment:
       - PORT=4001
       - PS_SHARED_SECRET=dummypass # Change to any password
@@ -105,12 +108,12 @@ services:
 
 ### Environment variables
 
-| Environment Variable    | Meaning                                                                                                           |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `PORT`                  | TCP port on which to listen for HTTP connections (defaults to 4001).                                              |
-| `PS_BEHIND_PROXY`       | Set to `"true"` for better logging when PicoShare is running behind a reverse proxy.                              |
-| `PS_SHARED_SECRET`      | Specifies a passphrase for the admin user to log in to PicoShare. Required if `PS_SHARED_SECRET_FILE` is not set. |
-| `PS_SHARED_SECRET_FILE` | Path to a file containing the passphrase for the admin user. Required if `PS_SHARED_SECRET` is not set.           |
+| Environment Variable    | Meaning                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                  | TCP port on which to listen for HTTP connections (defaults to 4001).                                               |
+| `PS_BEHIND_PROXY`       | Set to `"true"` for better logging when FemtoShare is running behind a reverse proxy.                              |
+| `PS_SHARED_SECRET`      | Specifies a passphrase for the admin user to log in to FemtoShare. Required if `PS_SHARED_SECRET_FILE` is not set. |
+| `PS_SHARED_SECRET_FILE` | Path to a file containing the passphrase for the admin user. Required if `PS_SHARED_SECRET` is not set.            |
 
 ### Docker environment variables
 
@@ -141,7 +144,7 @@ Due to time limitations, I keep PicoShare's scope limited to only the features t
 
 ## Deployment
 
-PicoShare is easy to deploy to cloud hosting platforms:
+FemtoShare is easy to deploy to cloud hosting platforms:
 
 - [fly.io](docs/deployment/fly.io.md)
 
@@ -155,11 +158,4 @@ These clients are built and maintained by third parties, not by the PicoShare pr
 
 ### Reclaiming reserved database space
 
-Some users find it surprising that when they delete files from PicoShare, they don't gain back free space on their filesystem.
-
-When you delete files, PicoShare reserves the space for future uploads. If you'd like to reduce PicoShare's usage of your filesystem, you can manually force PicoShare to give up the space by performing the following steps:
-
-1. Shut down PicoShare.
-1. Run `sqlite3 data/store.db 'VACUUM'` where `data/store.db` is the path to your PicoShare database.
-
-You should find that the `data/store.db` should shrink in file size, as it relinquishes the space dedicated to previously deleted files. If you start PicoShare again, the System Information screen will show the smaller size of PicoShare files.
+FemtoShare gives the space from deleted files and converted videos back to your filesystem automatically, so its database shrinks right away.

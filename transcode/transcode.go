@@ -13,25 +13,25 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
 )
 
 type (
 	State string
 
 	Store interface {
-		GetEntriesMetadata() ([]picoshare.UploadMetadata, error)
-		GetEntryMetadata(picoshare.EntryID) (picoshare.UploadMetadata, error)
-		ReadEntryFile(picoshare.EntryID) (io.ReadSeeker, error)
-		ReplaceEntryFile(id picoshare.EntryID, reader io.Reader, contentType picoshare.ContentType, filename picoshare.Filename) error
+		GetEntriesMetadata() ([]femtoshare.UploadMetadata, error)
+		GetEntryMetadata(femtoshare.EntryID) (femtoshare.UploadMetadata, error)
+		ReadEntryFile(femtoshare.EntryID) (io.ReadSeeker, error)
+		ReplaceEntryFile(id femtoshare.EntryID, reader io.Reader, contentType femtoshare.ContentType, filename femtoshare.Filename) error
 	}
 
 	Queue struct {
 		store   Store
-		pending chan picoshare.EntryID
+		pending chan femtoshare.EntryID
 		mu      sync.Mutex
-		states  map[picoshare.EntryID]State
+		states  map[femtoshare.EntryID]State
 	}
 )
 
@@ -42,25 +42,25 @@ const (
 	StateFailed     State = "failed"
 )
 
-const outputContentType = picoshare.ContentType("video/mp4")
+const outputContentType = femtoshare.ContentType("video/mp4")
 
 // NewQueue starts a background worker that converts videos one at a time so
 // a burst of uploads can't starve the server of CPU.
 func NewQueue(store Store) *Queue {
 	q := &Queue{
 		store:   store,
-		pending: make(chan picoshare.EntryID, 1000),
-		states:  map[picoshare.EntryID]State{},
+		pending: make(chan femtoshare.EntryID, 1000),
+		states:  map[femtoshare.EntryID]State{},
 	}
 	go q.run()
 	return q
 }
 
-func IsVideo(contentType picoshare.ContentType) bool {
+func IsVideo(contentType femtoshare.ContentType) bool {
 	return strings.HasPrefix(string(contentType), "video/")
 }
 
-func (q *Queue) Enqueue(id picoshare.EntryID) {
+func (q *Queue) Enqueue(id femtoshare.EntryID) {
 	q.setState(id, StatePending)
 	select {
 	case q.pending <- id:
@@ -85,7 +85,7 @@ func (q *Queue) EnqueueExistingVideos() error {
 
 // State reports the conversion progress of an entry. Entries that were never
 // queued are ready as uploaded.
-func (q *Queue) State(id picoshare.EntryID) State {
+func (q *Queue) State(id femtoshare.EntryID) State {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if state, ok := q.states[id]; ok {
@@ -94,7 +94,7 @@ func (q *Queue) State(id picoshare.EntryID) State {
 	return StateReady
 }
 
-func (q *Queue) setState(id picoshare.EntryID, state State) {
+func (q *Queue) setState(id femtoshare.EntryID, state State) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if state == StateReady {
@@ -115,7 +115,7 @@ func (q *Queue) run() {
 	}
 }
 
-func (q *Queue) convertEntry(id picoshare.EntryID) error {
+func (q *Queue) convertEntry(id femtoshare.EntryID) error {
 	metadata, err := q.store.GetEntryMetadata(id)
 	if _, ok := errors.AsType[store.EntryNotFoundError](err); ok {
 		return nil
@@ -123,7 +123,7 @@ func (q *Queue) convertEntry(id picoshare.EntryID) error {
 		return fmt.Errorf("failed to read entry metadata: %w", err)
 	}
 
-	dir, err := os.MkdirTemp("", "picoshare-transcode-")
+	dir, err := os.MkdirTemp("", "femtoshare-transcode-")
 	if err != nil {
 		return fmt.Errorf("failed to create working directory: %w", err)
 	}
@@ -171,7 +171,7 @@ func (q *Queue) convertEntry(id picoshare.EntryID) error {
 	return nil
 }
 
-func (q *Queue) copyEntryToFile(id picoshare.EntryID, path string) error {
+func (q *Queue) copyEntryToFile(id femtoshare.EntryID, path string) error {
 	reader, err := q.store.ReadEntryFile(id)
 	if err != nil {
 		return fmt.Errorf("failed to read entry file: %w", err)
@@ -189,7 +189,7 @@ func (q *Queue) copyEntryToFile(id picoshare.EntryID, path string) error {
 	return f.Close()
 }
 
-func mp4Filename(filename picoshare.Filename) picoshare.Filename {
+func mp4Filename(filename femtoshare.Filename) femtoshare.Filename {
 	name := string(filename)
-	return picoshare.Filename(strings.TrimSuffix(name, filepath.Ext(name)) + ".mp4")
+	return femtoshare.Filename(strings.TrimSuffix(name, filepath.Ext(name)) + ".mp4")
 }

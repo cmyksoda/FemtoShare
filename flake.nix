@@ -1,5 +1,5 @@
 {
-  description = "Dev environment for PicoShare";
+  description = "Dev environment for FemtoShare";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
@@ -78,7 +78,7 @@
       };
 
       npmDeps = nodepkgs.fetchNpmDeps {
-        name = "picoshare-npm-deps";
+        name = "femtoshare-npm-deps";
         src = npmDependenciesSrc;
         hash = npmDepsHash;
       };
@@ -111,21 +111,21 @@
           // extraAttrs);
 
       backend-dev = buildGoModule {
-        pname = "picoshare-dev";
+        pname = "femtoshare-dev";
         version = "0.0.1";
         src = gopkg.lib.cleanSource ./.;
         vendorHash = goVendorHash;
-        subPackages = ["cmd/picoshare"];
+        subPackages = ["cmd/femtoshare"];
         env.CGO_ENABLED = "1";
         tags = ["netgo" "sqlite_omit_load_extension" "dev"];
         ldflags = ["-w" "-extldflags '-static'"];
         postInstall = ''
-          mv "$out/bin/picoshare" "$out/bin/picoshare-dev"
+          mv "$out/bin/femtoshare" "$out/bin/femtoshare-dev"
         '';
       };
 
       frontend-check = buildNpmPackage {
-        pname = "picoshare-frontend-check";
+        pname = "femtoshare-frontend-check";
         version = "0.0.1";
         src = gopkg.lib.fileset.toSource {
           root = ./.;
@@ -262,7 +262,7 @@
           };
         in
           buildNpmPackage {
-            pname = "picoshare-e2e-tests";
+            pname = "femtoshare-e2e-tests";
             version = "0.0.1";
             src = gopkg.lib.fileset.toSource {
               root = ./.;
@@ -293,7 +293,7 @@
               export FONTCONFIG_FILE=${fontsConf}
 
               mkdir -p ./bin
-              cp ${backend-dev}/bin/picoshare-dev ./bin/picoshare-dev
+              cp ${backend-dev}/bin/femtoshare-dev ./bin/femtoshare-dev
 
               patchShebangs ./dev-scripts
               ./dev-scripts/run-e2e-tests --skip-build --project=chromium

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 const minFileLifetimeInDays = 1
@@ -20,25 +20,25 @@ var (
 	ErrFileLifetimeUnrecognizedFormat = fmt.Errorf("unrecognized format for file life time, must be in 1ns, 1us (or 1µs), 1ms, 1s, 1m, 1h format")
 )
 
-func FileLifetime(lifetimeInDays uint16) (picoshare.FileLifetime, error) {
+func FileLifetime(lifetimeInDays uint16) (femtoshare.FileLifetime, error) {
 	if lifetimeInDays < minFileLifetimeInDays {
-		return picoshare.FileLifetime{}, ErrFileLifetimeTooShort
+		return femtoshare.FileLifetime{}, ErrFileLifetimeTooShort
 	}
 	if lifetimeInDays > (maxFileLifetimeInYears * daysPerYear) {
-		return picoshare.FileLifetime{}, ErrFileLifetimeTooLong
+		return femtoshare.FileLifetime{}, ErrFileLifetimeTooLong
 	}
-	return picoshare.NewFileLifetimeInDays(lifetimeInDays), nil
+	return femtoshare.NewFileLifetimeInDays(lifetimeInDays), nil
 }
 
-func FileLifetimeFromString(fileLifetimeRaw string) (picoshare.FileLifetime, error) {
+func FileLifetimeFromString(fileLifetimeRaw string) (femtoshare.FileLifetime, error) {
 	dur, err := time.ParseDuration(fileLifetimeRaw)
 	if err != nil {
-		return picoshare.FileLifetime{}, ErrFileLifetimeUnrecognizedFormat
+		return femtoshare.FileLifetime{}, ErrFileLifetimeUnrecognizedFormat
 	}
 
-	if flt, _ := picoshare.NewFileLifetimeFromDuration(dur); flt == picoshare.FileLifetimeInfinite {
-		return picoshare.FileLifetimeInfinite, nil
+	if flt, _ := femtoshare.NewFileLifetimeFromDuration(dur); flt == femtoshare.FileLifetimeInfinite {
+		return femtoshare.FileLifetimeInfinite, nil
 	}
 
-	return picoshare.NewFileLifetimeFromDuration(dur)
+	return femtoshare.NewFileLifetimeFromDuration(dur)
 }

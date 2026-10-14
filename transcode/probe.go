@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 type (
@@ -61,7 +61,7 @@ func (p videoProbe) videoStream() (probeStream, bool) {
 	return probeStream{}, false
 }
 
-func (p videoProbe) needsConversion(contentType picoshare.ContentType) bool {
+func (p videoProbe) needsConversion(contentType femtoshare.ContentType) bool {
 	video, ok := p.videoStream()
 	if !ok {
 		return false

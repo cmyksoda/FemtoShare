@@ -8,46 +8,46 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/handlers"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store/test_sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers"
+	"github.com/cmyksoda/femtoshare/store/test_sqlite"
 )
 
 type mockEntry struct {
 	ID          string
-	Filename    picoshare.Filename
-	ContentType picoshare.ContentType
+	Filename    femtoshare.Filename
+	ContentType femtoshare.ContentType
 }
 
 var (
 	dummyTextEntry = mockEntry{
 		ID:          "TTTTTTTTTT",
-		Filename:    picoshare.Filename("test.txt"),
-		ContentType: picoshare.ContentType("text/plain;charset=utf-8"),
+		Filename:    femtoshare.Filename("test.txt"),
+		ContentType: femtoshare.ContentType("text/plain;charset=utf-8"),
 	}
 	dummyAudioEntry = mockEntry{
 		ID:          "AAAAAAAAAA",
-		Filename:    picoshare.Filename("test.mp3"),
-		ContentType: picoshare.ContentType("audio/mpeg"),
+		Filename:    femtoshare.Filename("test.mp3"),
+		ContentType: femtoshare.ContentType("audio/mpeg"),
 	}
 	dummyAudioEntryWithoutContentType = mockEntry{
 		ID:       "AAAAAAAA22",
-		Filename: picoshare.Filename("test0.mp3"),
+		Filename: femtoshare.Filename("test0.mp3"),
 	}
 	dummyVideoEntry = mockEntry{
 		ID:          "VVVVVVVVVV",
-		Filename:    picoshare.Filename("test.mp4"),
-		ContentType: picoshare.ContentType("video/mp4"),
+		Filename:    femtoshare.Filename("test.mp4"),
+		ContentType: femtoshare.ContentType("video/mp4"),
 	}
 	dummyVideoEntryWithGenericContentType = mockEntry{
 		ID:          "VVVVVVVV22",
-		Filename:    picoshare.Filename("test0.mp4"),
-		ContentType: picoshare.ContentType("application/octet-stream"),
+		Filename:    femtoshare.Filename("test0.mp4"),
+		ContentType: femtoshare.ContentType("application/octet-stream"),
 	}
 	dummyHTMLEntry = mockEntry{
 		ID:          "HHHHHHHHHH",
-		Filename:    picoshare.Filename("payload.html"),
-		ContentType: picoshare.ContentType("text/html"),
+		Filename:    femtoshare.Filename("payload.html"),
+		ContentType: femtoshare.ContentType("text/html"),
 	}
 )
 
@@ -126,13 +126,13 @@ func TestEntryGet(t *testing.T) {
 				dummyHTMLEntry,
 			} {
 				data := "dummy data"
-				entry := picoshare.UploadEntry{
-					UploadMetadata: picoshare.UploadMetadata{
-						ID:          picoshare.MustCreateEntryID(mockEntry.ID),
+				entry := femtoshare.UploadEntry{
+					UploadMetadata: femtoshare.UploadMetadata{
+						ID:          femtoshare.MustCreateEntryID(mockEntry.ID),
 						Filename:    mockEntry.Filename,
 						ContentType: mockEntry.ContentType,
 						Uploaded:    mustParseTime("2023-01-01T00:00:00Z"),
-						Expires:     picoshare.NeverExpire,
+						Expires:     femtoshare.NeverExpire,
 						Size:        mustParseFileSize(len(data)),
 					},
 					Reader: strings.NewReader(data),
@@ -178,7 +178,7 @@ func TestProtectedEntryDownload(t *testing.T) {
 	type fakeEntry struct {
 		ID                 string
 		Contents           string
-		DownloadPassphrase picoshare.DownloadPassphrase
+		DownloadPassphrase femtoshare.DownloadPassphrase
 	}
 
 	for _, tt := range []struct {
@@ -394,12 +394,12 @@ func TestProtectedEntryDownload(t *testing.T) {
 	} {
 		t.Run(tt.explanation, func(t *testing.T) {
 			dataStore := test_sqlite.New(t)
-			if err := dataStore.InsertEntry(strings.NewReader(tt.entryInStore.Contents), picoshare.UploadMetadata{
-				ID:                 picoshare.MustCreateEntryID(tt.entryInStore.ID),
+			if err := dataStore.InsertEntry(strings.NewReader(tt.entryInStore.Contents), femtoshare.UploadMetadata{
+				ID:                 femtoshare.MustCreateEntryID(tt.entryInStore.ID),
 				Filename:           "test.txt",
 				ContentType:        "text/plain",
 				Uploaded:           mustParseTime("2023-01-01T00:00:00Z"),
-				Expires:            picoshare.NeverExpire,
+				Expires:            femtoshare.NeverExpire,
 				Size:               mustParseFileSize(len(tt.entryInStore.Contents)),
 				DownloadPassphrase: tt.entryInStore.DownloadPassphrase,
 			}); err != nil {
@@ -447,12 +447,12 @@ func TestProtectedEntryDownload(t *testing.T) {
 func TestProtectedEntryDownloadRequiresPassphraseEveryDownload(t *testing.T) {
 	dataStore := test_sqlite.New(t)
 	data := "protected file contents"
-	if err := dataStore.InsertEntry(strings.NewReader(data), picoshare.UploadMetadata{
-		ID:                 picoshare.MustCreateEntryID("PPPPPPPPPP"),
+	if err := dataStore.InsertEntry(strings.NewReader(data), femtoshare.UploadMetadata{
+		ID:                 femtoshare.MustCreateEntryID("PPPPPPPPPP"),
 		Filename:           "protected.txt",
 		ContentType:        "text/plain",
 		Uploaded:           mustParseTime("2023-01-01T00:00:00Z"),
-		Expires:            picoshare.NeverExpire,
+		Expires:            femtoshare.NeverExpire,
 		Size:               mustParseFileSize(len(data)),
 		DownloadPassphrase: mustCreateDownloadPassphrase(t, "correct horse battery staple"),
 	}); err != nil {
@@ -492,10 +492,10 @@ func TestProtectedEntryDownloadRequiresPassphraseEveryDownload(t *testing.T) {
 	}
 }
 
-func mustCreateDownloadPassphrase(t *testing.T, value string) picoshare.DownloadPassphrase {
+func mustCreateDownloadPassphrase(t *testing.T, value string) femtoshare.DownloadPassphrase {
 	t.Helper()
 
-	passphrase, err := picoshare.NewDownloadPassphrase(value)
+	passphrase, err := femtoshare.NewDownloadPassphrase(value)
 	if err != nil {
 		t.Fatalf("failed to create download passphrase: %v", err)
 	}

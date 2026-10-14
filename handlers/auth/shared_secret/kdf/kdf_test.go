@@ -3,8 +3,8 @@ package kdf_test
 import (
 	"testing"
 
-	"github.com/mtlynch/picoshare/handlers/auth/shared_secret/kdf"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/auth/shared_secret/kdf"
 )
 
 func TestKeyComparison(t *testing.T) {
@@ -58,9 +58,9 @@ func TestSerializeEmptyKey(t *testing.T) {
 	kdf.DerivedKey{}.Serialize()
 }
 
-func mustCreatePassphrase(t *testing.T, raw string) picoshare.Passphrase {
+func mustCreatePassphrase(t *testing.T, raw string) femtoshare.Passphrase {
 	t.Helper()
-	passphrase, err := picoshare.NewPassphrase(raw)
+	passphrase, err := femtoshare.NewPassphrase(raw)
 	if err != nil {
 		t.Fatalf("failed to create passphrase: %v", err)
 	}

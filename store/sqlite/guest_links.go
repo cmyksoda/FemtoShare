@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
 )
 
-func (s Store) GetGuestLink(id picoshare.GuestLinkID) (picoshare.GuestLink, error) {
+func (s Store) GetGuestLink(id femtoshare.GuestLinkID) (femtoshare.GuestLink, error) {
 	row := s.db.QueryRow(`
 		SELECT
 			guest_links.id AS id,
@@ -33,7 +33,7 @@ func (s Store) GetGuestLink(id picoshare.GuestLinkID) (picoshare.GuestLink, erro
 	return guestLinkFromRow(row)
 }
 
-func (s Store) GetGuestLinks() ([]picoshare.GuestLink, error) {
+func (s Store) GetGuestLinks() ([]femtoshare.GuestLink, error) {
 	rows, err := s.db.Query(`
 		SELECT
 			guest_links.id AS id,
@@ -52,14 +52,14 @@ func (s Store) GetGuestLinks() ([]picoshare.GuestLink, error) {
 		GROUP BY
 			guest_links.id`)
 	if err != nil {
-		return []picoshare.GuestLink{}, err
+		return []femtoshare.GuestLink{}, err
 	}
 
-	gls := []picoshare.GuestLink{}
+	gls := []femtoshare.GuestLink{}
 	for rows.Next() {
 		gl, err := guestLinkFromRow(rows)
 		if err != nil {
-			return []picoshare.GuestLink{}, err
+			return []femtoshare.GuestLink{}, err
 		}
 
 		gls = append(gls, gl)
@@ -68,7 +68,7 @@ func (s Store) GetGuestLinks() ([]picoshare.GuestLink, error) {
 	return gls, nil
 }
 
-func (s *Store) InsertGuestLink(guestLink picoshare.GuestLink) error {
+func (s *Store) InsertGuestLink(guestLink femtoshare.GuestLink) error {
 	log.Printf("saving new guest link %s", guestLink.ID)
 
 	if _, err := s.db.Exec(`
@@ -99,7 +99,7 @@ func (s *Store) InsertGuestLink(guestLink picoshare.GuestLink) error {
 	return nil
 }
 
-func (s Store) DeleteGuestLink(id picoshare.GuestLinkID) error {
+func (s Store) DeleteGuestLink(id femtoshare.GuestLinkID) error {
 	log.Printf("deleting guest link %s", id)
 
 	tx, err := s.db.BeginTx(context.Background(), nil)
@@ -136,7 +136,7 @@ func (s Store) DeleteGuestLink(id picoshare.GuestLinkID) error {
 	return tx.Commit()
 }
 
-func (s Store) DisableGuestLink(id picoshare.GuestLinkID) error {
+func (s Store) DisableGuestLink(id femtoshare.GuestLinkID) error {
 	log.Printf("disabling guest link %s", id)
 
 	_, err := s.db.Exec(`
@@ -155,7 +155,7 @@ func (s Store) DisableGuestLink(id picoshare.GuestLinkID) error {
 	return nil
 }
 
-func (s Store) EnableGuestLink(id picoshare.GuestLinkID) error {
+func (s Store) EnableGuestLink(id femtoshare.GuestLinkID) error {
 	log.Printf("enabling guest link %s", id)
 
 	_, err := s.db.Exec(`
@@ -174,12 +174,12 @@ func (s Store) EnableGuestLink(id picoshare.GuestLinkID) error {
 	return nil
 }
 
-func guestLinkFromRow(row rowScanner) (picoshare.GuestLink, error) {
-	var id picoshare.GuestLinkID
-	var label picoshare.GuestLinkLabel
+func guestLinkFromRow(row rowScanner) (femtoshare.GuestLink, error) {
+	var id femtoshare.GuestLinkID
+	var label femtoshare.GuestLinkLabel
 	var isDisabled bool
-	var maxFileBytes picoshare.GuestUploadMaxFileBytes
-	var maxFileUploads picoshare.GuestUploadCountLimit
+	var maxFileBytes femtoshare.GuestUploadMaxFileBytes
+	var maxFileUploads femtoshare.GuestUploadCountLimit
 	var creationTimeRaw string
 	var urlExpirationTimeRaw string
 	var fileLifetimeRaw *string
@@ -187,32 +187,32 @@ func guestLinkFromRow(row rowScanner) (picoshare.GuestLink, error) {
 
 	err := row.Scan(&id, &label, &isDisabled, &maxFileBytes, &maxFileUploads, &creationTimeRaw, &urlExpirationTimeRaw, &fileLifetimeRaw, &filesUploaded)
 	if err == sql.ErrNoRows {
-		return picoshare.GuestLink{}, store.GuestLinkNotFoundError{ID: id}
+		return femtoshare.GuestLink{}, store.GuestLinkNotFoundError{ID: id}
 	} else if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	ct, err := parseDatetime(creationTimeRaw)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	uet, err := parseDatetime(urlExpirationTimeRaw)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
-	var fileLifetime picoshare.FileLifetime
+	var fileLifetime femtoshare.FileLifetime
 	if fileLifetimeRaw == nil {
-		fileLifetime = picoshare.FileLifetimeInfinite
+		fileLifetime = femtoshare.FileLifetimeInfinite
 	} else {
 		fileLifetime, err = parseFileLifetime(*fileLifetimeRaw)
 		if err != nil {
-			return picoshare.GuestLink{}, err
+			return femtoshare.GuestLink{}, err
 		}
 	}
 
-	return picoshare.GuestLink{
+	return femtoshare.GuestLink{
 		ID:              id,
 		Label:           label,
 		IsDisabled:      isDisabled,
@@ -220,7 +220,7 @@ func guestLinkFromRow(row rowScanner) (picoshare.GuestLink, error) {
 		MaxFileUploads:  maxFileUploads,
 		FilesUploaded:   filesUploaded,
 		Created:         ct,
-		UrlExpires:      picoshare.ExpirationTime(uet),
+		UrlExpires:      femtoshare.ExpirationTime(uet),
 		MaxFileLifetime: fileLifetime,
 	}, nil
 }

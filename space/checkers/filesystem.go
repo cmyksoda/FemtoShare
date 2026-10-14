@@ -39,9 +39,9 @@ type (
 		TotalBytes uint64
 	}
 
-	PicoShareUsage struct {
+	FemtoShareUsage struct {
 		FileSystemUsage
-		PicoShareDbFileSize uint64
+		FemtoShareDbFileSize uint64
 	}
 )
 
@@ -81,23 +81,23 @@ func NewFileSystemCheckerWithReader(dbPath string, fsReader FileSystemReader) Fi
 	}
 }
 
-func (fsc FileSystemChecker) MeasureUsage() (PicoShareUsage, error) {
+func (fsc FileSystemChecker) MeasureUsage() (FemtoShareUsage, error) {
 	fsu, err := fsc.measureWholeFilesystem()
 	if err != nil {
-		return PicoShareUsage{}, err
+		return FemtoShareUsage{}, err
 	}
 
 	dbFilesSize, err := fsc.measureDbFileUsage()
 	if err != nil {
-		return PicoShareUsage{}, err
+		return FemtoShareUsage{}, err
 	}
 
-	return PicoShareUsage{
+	return FemtoShareUsage{
 		FileSystemUsage: FileSystemUsage{
 			UsedBytes:  fsu.UsedBytes,
 			TotalBytes: fsu.TotalBytes,
 		},
-		PicoShareDbFileSize: dbFilesSize,
+		FemtoShareDbFileSize: dbFilesSize,
 	}, nil
 }
 

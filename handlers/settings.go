@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func (s Server) settingsPut() http.HandlerFunc {
@@ -26,7 +26,7 @@ func (s Server) settingsPut() http.HandlerFunc {
 	}
 }
 
-func settingsFromRequest(r *http.Request) (picoshare.Settings, error) {
+func settingsFromRequest(r *http.Request) (femtoshare.Settings, error) {
 	var payload struct {
 		DefaultExpirationDays uint16 `json:"defaultExpirationDays"`
 		DefaultNeverExpire    bool   `json:"defaultNeverExpire"`
@@ -34,19 +34,19 @@ func settingsFromRequest(r *http.Request) (picoshare.Settings, error) {
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		log.Printf("failed to decode JSON request: %v", err)
-		return picoshare.Settings{}, err
+		return femtoshare.Settings{}, err
 	}
 
 	defaultNeverExpire := payload.DefaultNeverExpire
 
-	var defaultLifetime picoshare.FileLifetime
+	var defaultLifetime femtoshare.FileLifetime
 	if defaultNeverExpire {
-		defaultLifetime = picoshare.FileLifetimeInfinite
+		defaultLifetime = femtoshare.FileLifetimeInfinite
 	} else if defaultLifetime, err = parse.FileLifetime(payload.DefaultExpirationDays); err != nil {
-		return picoshare.Settings{}, err
+		return femtoshare.Settings{}, err
 	}
 
-	return picoshare.Settings{
+	return femtoshare.Settings{
 		DefaultFileLifetime: defaultLifetime,
 	}, nil
 }

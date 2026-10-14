@@ -3,12 +3,12 @@ package store
 import (
 	"fmt"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 // EntryNotFoundError occurs when no entry exists with the given ID.
 type EntryNotFoundError struct {
-	ID picoshare.EntryID
+	ID femtoshare.EntryID
 }
 
 func (f EntryNotFoundError) Error() string {
@@ -17,7 +17,7 @@ func (f EntryNotFoundError) Error() string {
 
 // GuestLinkNotFoundError occurs when no guest link exists with the given ID.
 type GuestLinkNotFoundError struct {
-	ID picoshare.GuestLinkID
+	ID femtoshare.GuestLinkID
 }
 
 func (f GuestLinkNotFoundError) Error() string {

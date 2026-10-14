@@ -1,6 +1,6 @@
 # Deploy to fly.io
 
-fly.io is a fantastic host for PicoShare. You can run up to three instances 24/7 for a month under their free tier, which includes free SSL certificates and 3 GB of persistent disk.
+fly.io is a fantastic host for FemtoShare. You can run up to three instances 24/7 for a month under their free tier, which includes free SSL certificates and 3 GB of persistent disk.
 
 ## Pre-requisites
 
@@ -16,9 +16,9 @@ You'll need:
 REGION='iad'
 
 RANDOM_SUFFIX="$(head /dev/urandom | tr -dc 'a-z0-9' | head -c 6 ; echo '')"
-APP_NAME="picoshare-${RANDOM_SUFFIX}"
+APP_NAME="femtoshare-${RANDOM_SUFFIX}"
 
-curl -s -L https://raw.githubusercontent.com/mtlynch/picoshare/master/docs/deployment/fly-assets/make-fly-config | \
+curl -s -L https://raw.githubusercontent.com/cmyksoda/FemtoShare/main/docs/deployment/fly-assets/make-fly-config | \
   bash /dev/stdin "${APP_NAME}"
 
 fly apps create --name "${APP_NAME}"
@@ -26,9 +26,9 @@ fly apps create --name "${APP_NAME}"
 
 ## Create a persistent volume (optional)
 
-You can add a persistent volume to store PicoShare's data across server deploys.
+You can add a persistent volume to store FemtoShare's data across server deploys.
 
-**Note**: You'll need either a persistent volume or Litestream replication ([below](#set-your-litestream-environment-variables-optional)) to prevent PicoShare from losing all data on every server redeploy.
+**Note**: You'll need either a persistent volume or Litestream replication ([below](#set-your-litestream-environment-variables-optional)) to prevent FemtoShare from losing all data on every server redeploy.
 
 ```bash
 VOLUME_NAME='pico_data'
@@ -48,9 +48,9 @@ EOF
 
 ## Set your Litestream environment variables (optional)
 
-You can use [Litestream](https://litestream.io) to replicate PicoShare's data to cloud storage.
+You can use [Litestream](https://litestream.io) to replicate FemtoShare's data to cloud storage.
 
-**Note**: You'll need either a persistent volume ([above](#create-a-persistent-volume-optional)) or Litestream replication to prevent PicoShare from losing all data on every server redeploy.
+**Note**: You'll need either a persistent volume ([above](#create-a-persistent-volume-optional)) or Litestream replication to prevent FemtoShare from losing all data on every server redeploy.
 
 ```bash
 LITESTREAM_ACCESS_KEY_ID=YOUR-ACCESS-ID
@@ -91,11 +91,11 @@ Finally, it's time to deploy your app.
 
 ```bash
 # Change this to the latest Docker image tag
-PICOSHARE_IMAGE='mtlynch/picoshare:1.0.0'
+FEMTOSHARE_IMAGE='cmyksoda/femtoshare:latest'
 
 fly deploy \
   --region="${REGION}" \
-  --image "${PICOSHARE_IMAGE}" && \
-  PICOSHARE_URL="https://${APP_NAME}.fly.dev/" && \
-  echo "Your PicoShare instance is now ready at: ${PICOSHARE_URL}"
+  --image "${FEMTOSHARE_IMAGE}" && \
+  FEMTOSHARE_URL="https://${APP_NAME}.fly.dev/" && \
+  echo "Your FemtoShare instance is now ready at: ${FEMTOSHARE_URL}"
 ```

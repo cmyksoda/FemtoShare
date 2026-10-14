@@ -16,10 +16,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mileusna/useragent"
 
-	"github.com/mtlynch/picoshare/build"
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
+	"github.com/cmyksoda/femtoshare/build"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
+	"github.com/cmyksoda/femtoshare/store"
 )
 
 //go:embed templates
@@ -42,7 +42,7 @@ func (s Server) indexGet() http.HandlerFunc {
 		renderTemplate(w, t, struct {
 			commonProps
 		}{
-			commonProps: makeCommonProps("PicoShare", r.Context()),
+			commonProps: makeCommonProps("FemtoShare", r.Context()),
 		})
 	}
 }
@@ -52,8 +52,8 @@ func (s Server) guestLinkIndexGet() http.HandlerFunc {
 		"formatDate": func(t time.Time) string {
 			return t.Format(time.DateOnly)
 		},
-		"formatSizeLimit": func(limit picoshare.GuestUploadMaxFileBytes) string {
-			if limit == picoshare.GuestUploadUnlimitedFileSize {
+		"formatSizeLimit": func(limit femtoshare.GuestUploadMaxFileBytes) string {
+			if limit == femtoshare.GuestUploadUnlimitedFileSize {
 				return "Unlimited"
 			}
 			b := uint64(*limit)
@@ -69,14 +69,14 @@ func (s Server) guestLinkIndexGet() http.HandlerFunc {
 			}
 			return fmt.Sprintf("%.2f %cB", float64(b)/float64(div), "kMGTPE"[exp])
 		},
-		"formatCountLimit": func(limit picoshare.GuestUploadCountLimit) string {
-			if limit == picoshare.GuestUploadUnlimitedFileUploads {
+		"formatCountLimit": func(limit femtoshare.GuestUploadCountLimit) string {
+			if limit == femtoshare.GuestUploadUnlimitedFileUploads {
 				return "Unlimited"
 			}
 			return fmt.Sprintf("%d", int(*limit))
 		},
-		"formatExpiration": func(et picoshare.ExpirationTime) string {
-			if et == picoshare.NeverExpire {
+		"formatExpiration": func(et femtoshare.ExpirationTime) string {
+			if et == femtoshare.NeverExpire {
 				return "Never"
 			}
 			t := time.Time(et)
@@ -104,9 +104,9 @@ func (s Server) guestLinkIndexGet() http.HandlerFunc {
 
 		renderTemplate(w, t, struct {
 			commonProps
-			GuestLinks []picoshare.GuestLink
+			GuestLinks []femtoshare.GuestLink
 		}{
-			commonProps: makeCommonProps("PicoShare - Guest Links", r.Context()),
+			commonProps: makeCommonProps("FemtoShare - Guest Links", r.Context()),
 			GuestLinks:  links,
 		})
 	}
@@ -117,7 +117,7 @@ func (s Server) guestLinksNewGet() http.HandlerFunc {
 		"formatExpiration": func(t time.Time) string {
 			return t.Format(time.RFC3339)
 		},
-		"formatLifetime": func(flt picoshare.FileLifetime) string {
+		"formatLifetime": func(flt femtoshare.FileLifetime) string {
 			return flt.String()
 		},
 	}
@@ -131,7 +131,7 @@ func (s Server) guestLinksNewGet() http.HandlerFunc {
 			IsDefault    bool
 		}
 		type fileLifetimeOption struct {
-			FileLifetime picoshare.FileLifetime
+			FileLifetime femtoshare.FileLifetime
 			IsDefault    bool
 		}
 		renderTemplate(w, t, struct {
@@ -139,20 +139,20 @@ func (s Server) guestLinksNewGet() http.HandlerFunc {
 			ExpirationOptions   []expirationOption
 			FileLifetimeOptions []fileLifetimeOption
 		}{
-			commonProps: makeCommonProps("PicoShare - New Guest Link", r.Context()),
+			commonProps: makeCommonProps("FemtoShare - New Guest Link", r.Context()),
 			ExpirationOptions: []expirationOption{
 				{"1 day", s.now().AddDate(0, 0, 1), false},
 				{"7 days", s.now().AddDate(0, 0, 7), false},
 				{"30 days", s.now().AddDate(0, 0, 30), false},
 				{"1 year", s.now().AddDate(1, 0, 0), false},
-				{"Never", time.Time(picoshare.NeverExpire), true},
+				{"Never", time.Time(femtoshare.NeverExpire), true},
 			},
 			FileLifetimeOptions: []fileLifetimeOption{
-				{picoshare.NewFileLifetimeInDays(1), false},
-				{picoshare.NewFileLifetimeInDays(7), false},
-				{picoshare.NewFileLifetimeInDays(30), false},
-				{picoshare.NewFileLifetimeInYears(1), false},
-				{picoshare.FileLifetimeInfinite, true},
+				{femtoshare.NewFileLifetimeInDays(1), false},
+				{femtoshare.NewFileLifetimeInDays(7), false},
+				{femtoshare.NewFileLifetimeInDays(30), false},
+				{femtoshare.NewFileLifetimeInYears(1), false},
+				{femtoshare.FileLifetimeInfinite, true},
 			},
 		})
 	}
@@ -163,8 +163,8 @@ func (s Server) fileIndexGet() http.HandlerFunc {
 		"formatDate": func(t time.Time) string {
 			return t.Format(time.DateOnly)
 		},
-		"formatExpiration": func(et picoshare.ExpirationTime) string {
-			if et == picoshare.NeverExpire {
+		"formatExpiration": func(et femtoshare.ExpirationTime) string {
+			if et == femtoshare.NeverExpire {
 				return "Never"
 			}
 			t := et.Time().Local()
@@ -189,9 +189,9 @@ func (s Server) fileIndexGet() http.HandlerFunc {
 		})
 		renderTemplate(w, t, struct {
 			commonProps
-			Files []picoshare.UploadMetadata
+			Files []femtoshare.UploadMetadata
 		}{
-			commonProps: makeCommonProps("PicoShare - Files", r.Context()),
+			commonProps: makeCommonProps("FemtoShare - Files", r.Context()),
 			Files:       em,
 		})
 	}
@@ -199,11 +199,11 @@ func (s Server) fileIndexGet() http.HandlerFunc {
 
 func (s Server) fileEditGet() http.HandlerFunc {
 	fns := template.FuncMap{
-		"isNeverExpire": func(et picoshare.ExpirationTime) bool {
-			return et == picoshare.NeverExpire
+		"isNeverExpire": func(et femtoshare.ExpirationTime) bool {
+			return et == femtoshare.NeverExpire
 		},
-		"formatExpiration": func(et picoshare.ExpirationTime) string {
-			if et == picoshare.NeverExpire {
+		"formatExpiration": func(et femtoshare.ExpirationTime) string {
+			if et == femtoshare.NeverExpire {
 				return "Never"
 			}
 			return time.Time(et).Format(time.RFC3339)
@@ -215,7 +215,7 @@ func (s Server) fileEditGet() http.HandlerFunc {
 		"templates/pages/file-edit.html")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -234,20 +234,20 @@ func (s Server) fileEditGet() http.HandlerFunc {
 
 		renderTemplate(w, t, struct {
 			commonProps
-			Metadata            picoshare.UploadMetadata
+			Metadata            femtoshare.UploadMetadata
 			MaxPassphraseLength int
 		}{
-			commonProps:         makeCommonProps("PicoShare - Edit", r.Context()),
+			commonProps:         makeCommonProps("FemtoShare - Edit", r.Context()),
 			Metadata:            metadata,
-			MaxPassphraseLength: picoshare.MaxPassphraseLength,
+			MaxPassphraseLength: femtoshare.MaxPassphraseLength,
 		})
 	}
 }
 
 func (s Server) fileInfoGet() http.HandlerFunc {
 	fns := template.FuncMap{
-		"formatExpiration": func(et picoshare.ExpirationTime) string {
-			if et == picoshare.NeverExpire {
+		"formatExpiration": func(et femtoshare.ExpirationTime) string {
+			if et == femtoshare.NeverExpire {
 				return "Never"
 			}
 			t := et.Time().Local()
@@ -268,7 +268,7 @@ func (s Server) fileInfoGet() http.HandlerFunc {
 		"templates/pages/file-info.html")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -294,10 +294,10 @@ func (s Server) fileInfoGet() http.HandlerFunc {
 
 		renderTemplate(w, t, struct {
 			commonProps
-			Metadata      picoshare.UploadMetadata
+			Metadata      femtoshare.UploadMetadata
 			DownloadCount int
 		}{
-			commonProps:   makeCommonProps("PicoShare - File Information", r.Context()),
+			commonProps:   makeCommonProps("FemtoShare - File Information", r.Context()),
 			Metadata:      metadata,
 			DownloadCount: len(downloads),
 		})
@@ -316,7 +316,7 @@ func (s Server) fileDownloadsGet() http.HandlerFunc {
 	t := parseTemplatesWithFuncs(fns, "templates/pages/file-downloads.html")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -347,7 +347,7 @@ func (s Server) fileDownloadsGet() http.HandlerFunc {
 		filteredDownloads := downloads
 		if showUniqueOnly {
 			seen := make(map[string]bool)
-			var uniqueDownloads []picoshare.DownloadRecord
+			var uniqueDownloads []femtoshare.DownloadRecord
 
 			for _, download := range downloads {
 				if !seen[download.ClientIP] {
@@ -378,11 +378,11 @@ func (s Server) fileDownloadsGet() http.HandlerFunc {
 
 		renderTemplate(w, t, struct {
 			commonProps
-			Metadata       picoshare.UploadMetadata
+			Metadata       femtoshare.UploadMetadata
 			Downloads      []downloadRecord
 			ShowUniqueOnly bool
 		}{
-			commonProps:    makeCommonProps("PicoShare - Downloads", r.Context()),
+			commonProps:    makeCommonProps("FemtoShare - Downloads", r.Context()),
 			Metadata:       metadata,
 			Downloads:      records,
 			ShowUniqueOnly: showUniqueOnly,
@@ -394,7 +394,7 @@ func (s Server) fileConfirmDeleteGet() http.HandlerFunc {
 	t := parseTemplates("templates/pages/file-delete.html")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -412,9 +412,9 @@ func (s Server) fileConfirmDeleteGet() http.HandlerFunc {
 		}
 		renderTemplate(w, t, struct {
 			commonProps
-			Metadata picoshare.UploadMetadata
+			Metadata femtoshare.UploadMetadata
 		}{
-			commonProps: makeCommonProps("PicoShare - Delete", r.Context()),
+			commonProps: makeCommonProps("FemtoShare - Delete", r.Context()),
 			Metadata:    metadata,
 		})
 	}
@@ -427,7 +427,7 @@ func (s Server) authGet() http.HandlerFunc {
 		renderTemplate(w, t, struct {
 			commonProps
 		}{
-			commonProps: makeCommonProps("PicoShare - Log in", r.Context()),
+			commonProps: makeCommonProps("FemtoShare - Log in", r.Context()),
 		})
 	}
 }
@@ -456,15 +456,15 @@ func (s Server) uploadGet() http.HandlerFunc {
 			return
 		}
 		type lifetimeOption struct {
-			Lifetime  picoshare.FileLifetime
+			Lifetime  femtoshare.FileLifetime
 			IsDefault bool
 		}
 		lifetimeOptions := []lifetimeOption{
-			{picoshare.NewFileLifetimeInDays(1), false},
-			{picoshare.NewFileLifetimeInDays(7), false},
-			{picoshare.NewFileLifetimeInDays(30), false},
-			{picoshare.NewFileLifetimeInYears(1), false},
-			{picoshare.FileLifetimeInfinite, false},
+			{femtoshare.NewFileLifetimeInDays(1), false},
+			{femtoshare.NewFileLifetimeInDays(7), false},
+			{femtoshare.NewFileLifetimeInDays(30), false},
+			{femtoshare.NewFileLifetimeInYears(1), false},
+			{femtoshare.FileLifetimeInfinite, false},
 		}
 
 		defaultIsBuiltIn := false
@@ -492,8 +492,8 @@ func (s Server) uploadGet() http.HandlerFunc {
 		for _, lto := range lifetimeOptions {
 			friendlyName := lto.Lifetime.FriendlyName()
 			expiration := lto.Lifetime.ExpirationFromTime(s.now())
-			if lto.Lifetime.Equal(picoshare.FileLifetimeInfinite) {
-				expiration = picoshare.NeverExpire
+			if lto.Lifetime.Equal(femtoshare.FileLifetimeInfinite) {
+				expiration = femtoshare.NeverExpire
 			}
 			expirationOptions = append(expirationOptions, expirationOption{
 				FriendlyName: friendlyName,
@@ -509,11 +509,11 @@ func (s Server) uploadGet() http.HandlerFunc {
 			ExpirationOptions   []expirationOption
 			MaxNoteLength       int
 			MaxPassphraseLength int
-			GuestLinkMetadata   picoshare.GuestLink
+			GuestLinkMetadata   femtoshare.GuestLink
 		}{
-			commonProps:         makeCommonProps("PicoShare - Upload", r.Context()),
+			commonProps:         makeCommonProps("FemtoShare - Upload", r.Context()),
 			MaxNoteLength:       parse.MaxFileNoteBytes,
-			MaxPassphraseLength: picoshare.MaxPassphraseLength,
+			MaxPassphraseLength: femtoshare.MaxPassphraseLength,
 			ExpirationOptions:   expirationOptions,
 		})
 	}
@@ -556,14 +556,14 @@ func (s Server) guestUploadGet() http.HandlerFunc {
 			renderTemplate(w, tInactive, struct {
 				commonProps
 			}{
-				commonProps: makeCommonProps("PicoShare - Guest Link Inactive", r.Context()),
+				commonProps: makeCommonProps("FemtoShare - Guest Link Inactive", r.Context()),
 			})
 			return
 		}
 
 		// Generate expiration options up to the guest link's maximum file lifetime.
 		type lifetimeOption struct {
-			Lifetime  picoshare.FileLifetime
+			Lifetime  femtoshare.FileLifetime
 			IsDefault bool
 		}
 		type expirationOption struct {
@@ -573,11 +573,11 @@ func (s Server) guestUploadGet() http.HandlerFunc {
 		}
 
 		baseLifetimeOptions := []lifetimeOption{
-			{picoshare.NewFileLifetimeInDays(1), false},
-			{picoshare.NewFileLifetimeInDays(7), false},
-			{picoshare.NewFileLifetimeInDays(30), false},
-			{picoshare.NewFileLifetimeInYears(1), false},
-			{picoshare.FileLifetimeInfinite, false},
+			{femtoshare.NewFileLifetimeInDays(1), false},
+			{femtoshare.NewFileLifetimeInDays(7), false},
+			{femtoshare.NewFileLifetimeInDays(30), false},
+			{femtoshare.NewFileLifetimeInYears(1), false},
+			{femtoshare.FileLifetimeInfinite, false},
 		}
 
 		// Filter options to only include those within the guest link's maximum.
@@ -601,8 +601,8 @@ func (s Server) guestUploadGet() http.HandlerFunc {
 		for _, lto := range validLifetimeOptions {
 			friendlyName := lto.Lifetime.FriendlyName()
 			expiration := lto.Lifetime.ExpirationFromTime(s.now())
-			if lto.Lifetime.Equal(picoshare.FileLifetimeInfinite) {
-				expiration = picoshare.NeverExpire
+			if lto.Lifetime.Equal(femtoshare.FileLifetimeInfinite) {
+				expiration = femtoshare.NeverExpire
 			}
 			expirationOptions = append(expirationOptions, expirationOption{
 				FriendlyName: friendlyName,
@@ -614,9 +614,9 @@ func (s Server) guestUploadGet() http.HandlerFunc {
 		renderTemplate(w, t, struct {
 			commonProps
 			ExpirationOptions []expirationOption
-			GuestLinkMetadata picoshare.GuestLink
+			GuestLinkMetadata femtoshare.GuestLink
 		}{
-			commonProps:       makeCommonProps("PicoShare - Upload", r.Context()),
+			commonProps:       makeCommonProps("FemtoShare - Upload", r.Context()),
 			ExpirationOptions: expirationOptions,
 			GuestLinkMetadata: gl,
 		})
@@ -634,7 +634,7 @@ func (s Server) settingsGet() http.HandlerFunc {
 		}
 		var defaultExpiration uint16
 		var expirationTimeUnit string
-		defaultNeverExpire := settings.DefaultFileLifetime.Equal(picoshare.FileLifetimeInfinite)
+		defaultNeverExpire := settings.DefaultFileLifetime.Equal(femtoshare.FileLifetimeInfinite)
 		if defaultNeverExpire {
 			defaultExpiration = 30
 			expirationTimeUnit = "days"
@@ -653,7 +653,7 @@ func (s Server) settingsGet() http.HandlerFunc {
 			ExpirationTimeUnit string
 			DefaultNeverExpire bool
 		}{
-			commonProps:        makeCommonProps("PicoShare - Settings", r.Context()),
+			commonProps:        makeCommonProps("FemtoShare - Settings", r.Context()),
 			DefaultExpiration:  defaultExpiration,
 			ExpirationTimeUnit: expirationTimeUnit,
 			DefaultNeverExpire: defaultNeverExpire,
@@ -688,7 +688,7 @@ func (s Server) systemInformationGet() http.HandlerFunc {
 			Version           string
 			Revision          string
 		}{
-			commonProps:       makeCommonProps("PicoShare - System Information", r.Context()),
+			commonProps:       makeCommonProps("FemtoShare - System Information", r.Context()),
 			TotalServingBytes: spaceUsage.TotalServingBytes,
 			DatabaseFileBytes: spaceUsage.DatabaseFileSize,
 			UsedBytes:         spaceUsage.FileSystemUsedBytes,
@@ -700,7 +700,7 @@ func (s Server) systemInformationGet() http.HandlerFunc {
 	}
 }
 
-func humanReadableFileSize(fileSize picoshare.FileSize) string {
+func humanReadableFileSize(fileSize femtoshare.FileSize) string {
 	return humanReadableDiskUsage(fileSize.UInt64())
 }
 

@@ -10,9 +10,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/random"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
+	"github.com/cmyksoda/femtoshare/random"
 )
 
 const (
@@ -81,7 +81,7 @@ func (s *Server) guestLinksEnableDisable() http.HandlerFunc {
 		}
 
 		// Determine if client is enabling or disabling link.
-		var dbFn func(picoshare.GuestLinkID) error
+		var dbFn func(femtoshare.GuestLinkID) error
 		if strings.HasSuffix(r.URL.Path, "/enable") {
 			dbFn = s.store.EnableGuestLink
 		} else {
@@ -98,7 +98,7 @@ func (s *Server) guestLinksEnableDisable() http.HandlerFunc {
 	}
 }
 
-func (s Server) guestLinkFromRequest(r *http.Request) (picoshare.GuestLink, error) {
+func (s Server) guestLinkFromRequest(r *http.Request) (femtoshare.GuestLink, error) {
 	var payload struct {
 		Label          string  `json:"label"`
 		UrlExpiration  string  `json:"urlExpirationTime"`
@@ -109,35 +109,35 @@ func (s Server) guestLinkFromRequest(r *http.Request) (picoshare.GuestLink, erro
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		log.Printf("failed to decode JSON request: %v", err)
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	label, err := parse.GuestLinkLabel(payload.Label)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	urlExpiration, err := parse.Expiration(payload.UrlExpiration, s.now())
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	fileExpiration, err := parse.FileLifetimeFromString(payload.FileExpiration)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	maxFileBytes, err := parseMaxFileBytes(payload.MaxFileBytes)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
 	maxFileUploads, err := parseUploadCountLimit(payload.MaxFileUploads)
 	if err != nil {
-		return picoshare.GuestLink{}, err
+		return femtoshare.GuestLink{}, err
 	}
 
-	return picoshare.GuestLink{
+	return femtoshare.GuestLink{
 		Label:           label,
 		UrlExpires:      urlExpiration,
 		MaxFileLifetime: fileExpiration,
@@ -146,35 +146,35 @@ func (s Server) guestLinkFromRequest(r *http.Request) (picoshare.GuestLink, erro
 	}, nil
 }
 
-func parseMaxFileBytes(limitRaw *uint64) (picoshare.GuestUploadMaxFileBytes, error) {
+func parseMaxFileBytes(limitRaw *uint64) (femtoshare.GuestUploadMaxFileBytes, error) {
 	if limitRaw == nil {
-		return picoshare.GuestUploadUnlimitedFileSize, nil
+		return femtoshare.GuestUploadUnlimitedFileSize, nil
 	}
 	if *limitRaw < GuestLinkByteLimitMinimum {
 		return nil, fmt.Errorf("guest upload size limit must be at at least %d bytes", GuestLinkByteLimitMinimum)
 	}
 
-	return picoshare.GuestUploadMaxFileBytes(limitRaw), nil
+	return femtoshare.GuestUploadMaxFileBytes(limitRaw), nil
 }
 
-func parseUploadCountLimit(limitRaw *int) (picoshare.GuestUploadCountLimit, error) {
+func parseUploadCountLimit(limitRaw *int) (femtoshare.GuestUploadCountLimit, error) {
 	if limitRaw == nil {
-		return picoshare.GuestUploadUnlimitedFileUploads, nil
+		return femtoshare.GuestUploadUnlimitedFileUploads, nil
 	}
 	if *limitRaw <= 0 {
 		return nil, errors.New("guest upload count limit must be a positive number")
 	}
 
-	return picoshare.GuestUploadCountLimit(limitRaw), nil
+	return femtoshare.GuestUploadCountLimit(limitRaw), nil
 }
 
-func generateGuestLinkID() picoshare.GuestLinkID {
-	return picoshare.GuestLinkID(random.String(GuestLinkIDLength, guestLinkIDCharacters))
+func generateGuestLinkID() femtoshare.GuestLinkID {
+	return femtoshare.GuestLinkID(random.String(GuestLinkIDLength, guestLinkIDCharacters))
 }
 
-func parseGuestLinkID(s string) (picoshare.GuestLinkID, error) {
+func parseGuestLinkID(s string) (femtoshare.GuestLinkID, error) {
 	if len(s) != GuestLinkIDLength {
-		return picoshare.GuestLinkID(""), fmt.Errorf("guest link ID (%v) has invalid length: got %d, want %d", s, len(s), GuestLinkIDLength)
+		return femtoshare.GuestLinkID(""), fmt.Errorf("guest link ID (%v) has invalid length: got %d, want %d", s, len(s), GuestLinkIDLength)
 	}
 
 	// We could do this outside the function and store the result.
@@ -185,8 +185,8 @@ func parseGuestLinkID(s string) (picoshare.GuestLinkID, error) {
 
 	for _, c := range s {
 		if _, ok := idCharsHash[c]; !ok {
-			return picoshare.GuestLinkID(""), fmt.Errorf("entry ID (%s) contains invalid character: %s", s, string(c))
+			return femtoshare.GuestLinkID(""), fmt.Errorf("entry ID (%s) contains invalid character: %s", s, string(c))
 		}
 	}
-	return picoshare.GuestLinkID(s), nil
+	return femtoshare.GuestLinkID(s), nil
 }

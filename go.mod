@@ -1,4 +1,4 @@
-module github.com/mtlynch/picoshare
+module github.com/cmyksoda/femtoshare
 
 go 1.26
 

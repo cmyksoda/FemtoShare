@@ -327,9 +327,9 @@ If you learned that methods shouldn't be exported just for testing, add to `AGEN
 
 # Playwright (MCP)
 
-- Start PicoShare before driving the UI:
+- Start FemtoShare before driving the UI:
   - `dev-scripts/build-backend dev`
-  - `PS_SHARED_SECRET=somepassword ./bin/picoshare-dev -db data/store.db`
+  - `PS_SHARED_SECRET=somepassword ./bin/femtoshare-dev -db data/store.db`
 - Use the MCP Playwright server tools to drive the UI (for example, `mcp__playwright__browser_navigate` followed by `mcp__playwright__browser_snapshot`).
 
 # Nix flake
@@ -378,7 +378,7 @@ If you learned that methods shouldn't be exported just for testing, add to `AGEN
 ## JavaScript
 
 - Do not use `alert()` or `confirm()`.
-  - Use PicoShare's custom dialog UI instead.
+  - Use FemtoShare's custom dialog UI instead.
 - Do not embed Go template conditionals inside JavaScript. Instead, render a data attribute or hidden input in HTML and read it from JavaScript.
 
 # Shell scripts

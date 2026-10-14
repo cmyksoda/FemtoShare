@@ -1,4 +1,4 @@
-package picoshare
+package femtoshare
 
 import (
 	"crypto/subtle"
@@ -47,7 +47,7 @@ func (p Passphrase) String() string {
 }
 
 // DownloadPassphrase is a passphrase that protects downloads of an entry.
-// PicoShare stores download passphrases in plaintext, so it is safe to compare
+// FemtoShare stores download passphrases in plaintext, so it is safe to compare
 // them directly. The zero value is the empty download passphrase, which
 // represents the absence of a passphrase.
 type DownloadPassphrase struct {

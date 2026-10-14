@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mtlynch/picoshare/random"
+	"github.com/cmyksoda/femtoshare/random"
 )
 
 type contextKey struct {

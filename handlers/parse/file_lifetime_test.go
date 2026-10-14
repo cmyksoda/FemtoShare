@@ -3,45 +3,45 @@ package parse_test
 import (
 	"testing"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func TestFileLifetime(t *testing.T) {
 	for _, tt := range []struct {
 		description string
 		input       uint16
-		output      picoshare.FileLifetime
+		output      femtoshare.FileLifetime
 		err         error
 	}{
 		{
 			description: "valid lifetime",
 			input:       7,
-			output:      picoshare.NewFileLifetimeInDays(7),
+			output:      femtoshare.NewFileLifetimeInDays(7),
 			err:         nil,
 		},
 		{
 			description: "accepts the minimum valid lifetime",
 			input:       1,
-			output:      picoshare.NewFileLifetimeInDays(1),
+			output:      femtoshare.NewFileLifetimeInDays(1),
 			err:         nil,
 		},
 		{
 			description: "accepts the maximum valid lifetime",
 			input:       365 * 10,
-			output:      picoshare.NewFileLifetimeInYears(10),
+			output:      femtoshare.NewFileLifetimeInYears(10),
 			err:         nil,
 		},
 		{
 			description: "rejects too short a lifetime",
 			input:       0,
-			output:      picoshare.FileLifetime{},
+			output:      femtoshare.FileLifetime{},
 			err:         parse.ErrFileLifetimeTooShort,
 		},
 		{
 			description: "rejects too long a lifetime",
 			input:       3651,
-			output:      picoshare.FileLifetime{},
+			output:      femtoshare.FileLifetime{},
 			err:         parse.ErrFileLifetimeTooLong,
 		},
 	} {

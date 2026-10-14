@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
-func (s Store) InsertEntryDownload(id picoshare.EntryID, r picoshare.DownloadRecord) error {
+func (s Store) InsertEntryDownload(id femtoshare.EntryID, r femtoshare.DownloadRecord) error {
 	log.Printf("recording download of file ID %s from client %s", id.String(), r.ClientIP)
 	if _, err := s.db.Exec(`
 	INSERT INTO
@@ -30,7 +30,7 @@ func (s Store) InsertEntryDownload(id picoshare.EntryID, r picoshare.DownloadRec
 	return nil
 }
 
-func (s Store) GetEntryDownloads(id picoshare.EntryID) ([]picoshare.DownloadRecord, error) {
+func (s Store) GetEntryDownloads(id femtoshare.EntryID) ([]femtoshare.DownloadRecord, error) {
 	rows, err := s.db.Query(`
 	SELECT
 		download_timestamp,
@@ -43,27 +43,27 @@ func (s Store) GetEntryDownloads(id picoshare.EntryID) ([]picoshare.DownloadReco
 	ORDER BY
 		download_timestamp DESC`, sql.Named("entry_id", id.String()))
 	if err == sql.ErrNoRows {
-		return []picoshare.DownloadRecord{}, nil
+		return []femtoshare.DownloadRecord{}, nil
 	} else if err != nil {
-		return []picoshare.DownloadRecord{}, err
+		return []femtoshare.DownloadRecord{}, err
 	}
 
-	downloads := []picoshare.DownloadRecord{}
+	downloads := []femtoshare.DownloadRecord{}
 	for rows.Next() {
 		var downloadTimeRaw string
 		var clientIP string
 		var userAgent string
 
 		if err := rows.Scan(&downloadTimeRaw, &clientIP, &userAgent); err != nil {
-			return []picoshare.DownloadRecord{}, err
+			return []femtoshare.DownloadRecord{}, err
 		}
 
 		dt, err := parseDatetime(downloadTimeRaw)
 		if err != nil {
-			return []picoshare.DownloadRecord{}, err
+			return []femtoshare.DownloadRecord{}, err
 		}
 
-		downloads = append(downloads, picoshare.DownloadRecord{
+		downloads = append(downloads, femtoshare.DownloadRecord{
 			Time:      dt,
 			ClientIP:  clientIP,
 			UserAgent: userAgent,

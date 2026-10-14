@@ -3,7 +3,7 @@ tmp_dir = "/tmp/air"
 
 [build]
   cmd = "dev-scripts/build-backend dev"
-  entrypoint = ["env", "PS_SHARED_SECRET=somepassword", "./bin/picoshare-dev", "-db", "data/store.db"]
+  entrypoint = ["env", "PS_SHARED_SECRET=somepassword", "./bin/femtoshare-dev", "-db", "data/store.db"]
   include_ext = ["go", "html", "js", "css"]
   exclude_dir = [
     ".direnv",

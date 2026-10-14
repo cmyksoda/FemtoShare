@@ -18,7 +18,7 @@ PLATFORM="${TARGETPLATFORM:-linux/amd64}"
 set -u
 
 GO_BUILD_TAGS=()
-BINARY='./bin/picoshare'
+BINARY='./bin/femtoshare'
 
 GO_BUILD_TAGS+=('netgo')
 # Disable dynamically-loaded extensions, which cause a compile time warning.
@@ -64,4 +64,4 @@ go build \
   -tags "${BUILD_TAGS_JOINED}" \
   -ldflags "-w -extldflags '-static'" \
   -o "${BINARY}" \
-  ./cmd/picoshare/
+  ./cmd/femtoshare/

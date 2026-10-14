@@ -155,9 +155,9 @@
       progressBarFill.value = percentageValue;
       progressBarFill.setAttribute("aria-valuenow", percentageValue);
       progressBarFill.textContent = percentage;
-      document.title = "PicoShare ↑ " + percentage;
+      document.title = "FemtoShare ↑ " + percentage;
       if (bytesUploaded === bytesTotal) {
-        document.title = "PicoShare - Complete";
+        document.title = "FemtoShare - Complete";
         showElement(progressSpinner);
       }
     }
@@ -172,7 +172,7 @@
           .addInfoMessage("Copied link");
       });
       document.getElementById("result-links").append(uploadLinksEl);
-      document.title = "PicoShare - Complete";
+      document.title = "FemtoShare - Complete";
       showElement(resultEl);
       showElement(uploadAnotherBtn);
     }
@@ -184,7 +184,7 @@
           return status;
         }
         conversionMessageEl.innerText = conversionMessages[status.state];
-        document.title = "PicoShare - Converting video";
+        document.title = "FemtoShare - Converting video";
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }

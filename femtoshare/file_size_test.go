@@ -1,10 +1,10 @@
-package picoshare_test
+package femtoshare_test
 
 import (
 	"math"
 	"testing"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 func TestFileSizeFromInt(t *testing.T) {
@@ -24,13 +24,13 @@ func TestFileSizeFromInt(t *testing.T) {
 			name:    "zero size",
 			input:   0,
 			want:    0,
-			wantErr: picoshare.ErrEmptyFile,
+			wantErr: femtoshare.ErrEmptyFile,
 		},
 		{
 			name:    "negative size",
 			input:   -1,
 			want:    0,
-			wantErr: picoshare.ErrNegativeFileSize,
+			wantErr: femtoshare.ErrNegativeFileSize,
 		},
 		{
 			name:    "maximum int value",
@@ -40,7 +40,7 @@ func TestFileSizeFromInt(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			fs, err := picoshare.FileSizeFromInt(tt.input)
+			fs, err := femtoshare.FileSizeFromInt(tt.input)
 
 			if got, want := err, tt.wantErr; got != want {
 				t.Fatalf("err=%v, want=%v", got, want)
@@ -72,7 +72,7 @@ func TestFileSizeFromUint64(t *testing.T) {
 			name:    "zero size",
 			input:   0,
 			want:    0,
-			wantErr: picoshare.ErrEmptyFile,
+			wantErr: femtoshare.ErrEmptyFile,
 		},
 		{
 			name:    "maximum uint64 value",
@@ -82,7 +82,7 @@ func TestFileSizeFromUint64(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			fs, err := picoshare.FileSizeFromUint64(tt.input)
+			fs, err := femtoshare.FileSizeFromUint64(tt.input)
 
 			if got, want := err, tt.wantErr; got != want {
 				t.Fatalf("err=%v, want=%v", got, want)
@@ -126,12 +126,12 @@ func TestFileSizeEquality(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			fs1, err := picoshare.FileSizeFromUint64(tt.size1)
+			fs1, err := femtoshare.FileSizeFromUint64(tt.size1)
 			if err != nil {
 				t.Fatalf("failed to create first FileSize: %v", err)
 			}
 
-			fs2, err := picoshare.FileSizeFromUint64(tt.size2)
+			fs2, err := femtoshare.FileSizeFromUint64(tt.size2)
 			if err != nil {
 				t.Fatalf("failed to create second FileSize: %v", err)
 			}

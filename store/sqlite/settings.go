@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 // We only store one set of settings at a time, so we used a fixed row ID.
 const settingsRowID = 1
 
-func (s Store) ReadSettings() (picoshare.Settings, error) {
+func (s Store) ReadSettings() (femtoshare.Settings, error) {
 	var expirationInDays uint16
 	if err := s.db.QueryRow(`
    SELECT
@@ -20,17 +20,17 @@ func (s Store) ReadSettings() (picoshare.Settings, error) {
    WHERE
    	id = :row_id`, sql.Named("row_id", settingsRowID)).Scan(&expirationInDays); err != nil {
 		if err == sql.ErrNoRows {
-			return picoshare.Settings{}, nil
+			return femtoshare.Settings{}, nil
 		}
-		return picoshare.Settings{}, err
+		return femtoshare.Settings{}, err
 	}
 
-	return picoshare.Settings{
-		DefaultFileLifetime: picoshare.NewFileLifetimeInDays(expirationInDays),
+	return femtoshare.Settings{
+		DefaultFileLifetime: femtoshare.NewFileLifetimeInDays(expirationInDays),
 	}, nil
 }
 
-func (s Store) UpdateSettings(settings picoshare.Settings) error {
+func (s Store) UpdateSettings(settings femtoshare.Settings) error {
 	log.Printf("saving new settings: %s", settings)
 	expirationInDays := settings.DefaultFileLifetime.Days()
 	if _, err := s.db.Exec(`

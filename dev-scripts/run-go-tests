@@ -94,7 +94,7 @@ GCI_DIFF=$("${GCI_PATH}" diff \
   --skip-generated \
   --section standard \
   --section default \
-  --section "prefix(github.com/mtlynch/picoshare)" \
+  --section "prefix(github.com/cmyksoda/femtoshare)" \
   "${GO_PACKAGE_DIRS[@]}")
 readonly GCI_DIFF
 if [[ -n "${GCI_DIFF}" ]]; then
@@ -102,7 +102,7 @@ if [[ -n "${GCI_DIFF}" ]]; then
   echo >&2 "Go imports are not grouped correctly. Run:"
   echo >&2 "  ${GCI_PATH} write --skip-generated --section standard \\"
   echo >&2 "    --section default \\"
-  echo >&2 "    --section 'prefix(github.com/mtlynch/picoshare)' \\"
+  echo >&2 "    --section 'prefix(github.com/cmyksoda/femtoshare)' \\"
   printf >&2 "    %q" "${GO_PACKAGE_DIRS[@]}"
   printf >&2 '\n'
   exit 1

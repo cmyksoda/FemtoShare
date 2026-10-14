@@ -3,24 +3,24 @@ package handlers
 import (
 	"io"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 type Store interface {
-	GetEntriesMetadata() ([]picoshare.UploadMetadata, error)
-	ReadEntryFile(picoshare.EntryID) (io.ReadSeeker, error)
-	GetEntryMetadata(id picoshare.EntryID) (picoshare.UploadMetadata, error)
-	InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) error
-	UpdateEntryMetadata(id picoshare.EntryID, metadata picoshare.UploadMetadata) error
-	DeleteEntry(id picoshare.EntryID) error
-	GetGuestLink(picoshare.GuestLinkID) (picoshare.GuestLink, error)
-	GetGuestLinks() ([]picoshare.GuestLink, error)
-	InsertGuestLink(picoshare.GuestLink) error
-	DeleteGuestLink(picoshare.GuestLinkID) error
-	DisableGuestLink(picoshare.GuestLinkID) error
-	EnableGuestLink(picoshare.GuestLinkID) error
-	InsertEntryDownload(picoshare.EntryID, picoshare.DownloadRecord) error
-	GetEntryDownloads(id picoshare.EntryID) ([]picoshare.DownloadRecord, error)
-	ReadSettings() (picoshare.Settings, error)
-	UpdateSettings(picoshare.Settings) error
+	GetEntriesMetadata() ([]femtoshare.UploadMetadata, error)
+	ReadEntryFile(femtoshare.EntryID) (io.ReadSeeker, error)
+	GetEntryMetadata(id femtoshare.EntryID) (femtoshare.UploadMetadata, error)
+	InsertEntry(reader io.Reader, metadata femtoshare.UploadMetadata) error
+	UpdateEntryMetadata(id femtoshare.EntryID, metadata femtoshare.UploadMetadata) error
+	DeleteEntry(id femtoshare.EntryID) error
+	GetGuestLink(femtoshare.GuestLinkID) (femtoshare.GuestLink, error)
+	GetGuestLinks() ([]femtoshare.GuestLink, error)
+	InsertGuestLink(femtoshare.GuestLink) error
+	DeleteGuestLink(femtoshare.GuestLinkID) error
+	DisableGuestLink(femtoshare.GuestLinkID) error
+	EnableGuestLink(femtoshare.GuestLinkID) error
+	InsertEntryDownload(femtoshare.EntryID, femtoshare.DownloadRecord) error
+	GetEntryDownloads(id femtoshare.EntryID) ([]femtoshare.DownloadRecord, error)
+	ReadSettings() (femtoshare.Settings, error)
+	UpdateSettings(femtoshare.Settings) error
 }

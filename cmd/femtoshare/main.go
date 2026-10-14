@@ -16,13 +16,13 @@ import (
 
 	gorilla "github.com/mtlynch/gorilla-handlers"
 
-	"github.com/mtlynch/picoshare/garbagecollect"
-	"github.com/mtlynch/picoshare/handlers"
-	"github.com/mtlynch/picoshare/handlers/auth/shared_secret"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/space"
-	"github.com/mtlynch/picoshare/store/sqlite"
-	"github.com/mtlynch/picoshare/transcode"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/garbagecollect"
+	"github.com/cmyksoda/femtoshare/handlers"
+	"github.com/cmyksoda/femtoshare/handlers/auth/shared_secret"
+	"github.com/cmyksoda/femtoshare/space"
+	"github.com/cmyksoda/femtoshare/store/sqlite"
+	"github.com/cmyksoda/femtoshare/transcode"
 )
 
 // transcodingStore queues every uploaded video for conversion once it's saved.
@@ -31,7 +31,7 @@ type transcodingStore struct {
 	videoQueue *transcode.Queue
 }
 
-func (s transcodingStore) InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) error {
+func (s transcodingStore) InsertEntry(reader io.Reader, metadata femtoshare.UploadMetadata) error {
 	if err := s.Store.InsertEntry(reader, metadata); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (s transcodingStore) InsertEntry(reader io.Reader, metadata picoshare.Uploa
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
-	log.Print("starting picoshare server")
+	log.Print("starting femtoshare server")
 
 	dbPath := flag.String("db", "data/store.db", "path to database")
 	flag.Parse()
@@ -116,7 +116,7 @@ func sharedSecretFromEnv() (shared_secret.SharedSecretAuthenticator, error) {
 		return shared_secret.SharedSecretAuthenticator{},
 			fmt.Errorf("PS_SHARED_SECRET or PS_SHARED_SECRET_FILE must be set")
 	}
-	passphrase, err := picoshare.NewPassphrase(secret)
+	passphrase, err := femtoshare.NewPassphrase(secret)
 	if err != nil {
 		return shared_secret.SharedSecretAuthenticator{}, fmt.Errorf("invalid PS_SHARED_SECRET: %w", err)
 	}
@@ -130,7 +130,7 @@ func sharedSecretFromFile(path string) (shared_secret.SharedSecretAuthenticator,
 	}
 
 	stripped := strings.TrimRight(string(data), "\r\n")
-	passphrase, err := picoshare.NewPassphrase(stripped)
+	passphrase, err := femtoshare.NewPassphrase(stripped)
 	if err != nil {
 		return shared_secret.SharedSecretAuthenticator{}, fmt.Errorf("invalid PS_SHARED_SECRET_FILE: %w", err)
 	}

@@ -4,20 +4,20 @@ import (
 	"database/sql"
 	"io"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store/sqlite/wrapped"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store/sqlite/wrapped"
 )
 
 type writer struct {
 	ctx     wrapped.SqlDB
-	entryID picoshare.EntryID
+	entryID femtoshare.EntryID
 	buf     []byte
 	written int
 }
 
 // Create a new writer for the entry ID using the given SqlTx and splitting the
 // file into separate rows in the DB of at most chunkSize bytes.
-func NewWriter(ctx wrapped.SqlDB, id picoshare.EntryID, chunkSize uint64) io.WriteCloser {
+func NewWriter(ctx wrapped.SqlDB, id femtoshare.EntryID, chunkSize uint64) io.WriteCloser {
 	return new(writer{
 		ctx:     ctx,
 		entryID: id,

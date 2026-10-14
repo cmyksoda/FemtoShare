@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/garbagecollect"
-	"github.com/mtlynch/picoshare/handlers"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
-	"github.com/mtlynch/picoshare/store/test_sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/garbagecollect"
+	"github.com/cmyksoda/femtoshare/handlers"
+	"github.com/cmyksoda/femtoshare/store"
+	"github.com/cmyksoda/femtoshare/store/test_sqlite"
 )
 
 var nilSpaceCheckFunc handlers.SpaceCheckFunc
@@ -22,8 +22,8 @@ func TestDeleteExistingFile(t *testing.T) {
 	dataStore := test_sqlite.New(t)
 	fileContents := "dummy data"
 	dataStore.InsertEntry(strings.NewReader(fileContents),
-		picoshare.UploadMetadata{
-			ID:       picoshare.MustCreateEntryID("hR87apiUCj"),
+		femtoshare.UploadMetadata{
+			ID:       femtoshare.MustCreateEntryID("hR87apiUCj"),
 			Uploaded: mustParseTime("2023-01-01T00:00:00Z"),
 			Expires:  mustParseExpirationTime("2024-01-01T00:00:00Z"),
 			Size:     mustParseFileSize(len(fileContents)),
@@ -41,9 +41,9 @@ func TestDeleteExistingFile(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	_, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID("hR87apiUCj"))
+	_, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID("hR87apiUCj"))
 	if _, ok := err.(store.EntryNotFoundError); !ok {
-		t.Fatalf("expected entry %v to be deleted", picoshare.MustCreateEntryID("hR87apiUCj"))
+		t.Fatalf("expected entry %v to be deleted", femtoshare.MustCreateEntryID("hR87apiUCj"))
 	}
 }
 

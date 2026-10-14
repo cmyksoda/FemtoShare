@@ -1,10 +1,10 @@
-package picoshare_test
+package femtoshare_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 func TestEntryIDFromString(t *testing.T) {
@@ -15,37 +15,37 @@ func TestEntryIDFromString(t *testing.T) {
 	}{
 		{
 			explanation:     "ten allowed characters are valid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength),
+			input:           strings.Repeat("a", femtoshare.EntryIDLength),
 			isValidExpected: true,
 		},
 		{
 			explanation:     "an ID shorter than ten characters is invalid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength-1),
+			input:           strings.Repeat("a", femtoshare.EntryIDLength-1),
 			isValidExpected: false,
 		},
 		{
 			explanation:     "an ID longer than ten characters is invalid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength+1),
+			input:           strings.Repeat("a", femtoshare.EntryIDLength+1),
 			isValidExpected: false,
 		},
 		{
 			explanation:     "a visually ambiguous uppercase I is invalid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength-1) + "I",
+			input:           strings.Repeat("a", femtoshare.EntryIDLength-1) + "I",
 			isValidExpected: false,
 		},
 		{
 			explanation:     "a visually ambiguous lowercase l is invalid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength-1) + "l",
+			input:           strings.Repeat("a", femtoshare.EntryIDLength-1) + "l",
 			isValidExpected: false,
 		},
 		{
 			explanation:     "a Unicode character is invalid",
-			input:           strings.Repeat("a", picoshare.EntryIDLength-1) + "é",
+			input:           strings.Repeat("a", femtoshare.EntryIDLength-1) + "é",
 			isValidExpected: false,
 		},
 	} {
 		t.Run(tt.explanation, func(t *testing.T) {
-			id, err := picoshare.EntryIDFromString(tt.input)
+			id, err := femtoshare.EntryIDFromString(tt.input)
 			isValid := err == nil
 			if got, want := isValid, tt.isValidExpected; got != want {
 				t.Fatalf("EntryIDFromString validity=%t, want=%t", got, want)
@@ -61,12 +61,12 @@ func TestEntryIDFromString(t *testing.T) {
 }
 
 func TestNewEntryID(t *testing.T) {
-	id := picoshare.NewEntryID()
-	if got, want := len(id.String()), picoshare.EntryIDLength; got != want {
+	id := femtoshare.NewEntryID()
+	if got, want := len(id.String()), femtoshare.EntryIDLength; got != want {
 		t.Errorf("length=%d, want=%d", got, want)
 	}
 
-	_, err := picoshare.EntryIDFromString(id.String())
+	_, err := femtoshare.EntryIDFromString(id.String())
 	if err != nil {
 		t.Errorf("failed to parse generated entry ID: %v", err)
 	}

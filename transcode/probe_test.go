@@ -3,7 +3,7 @@ package transcode
 import (
 	"testing"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 func TestNeedsConversion(t *testing.T) {
@@ -19,7 +19,7 @@ func TestNeedsConversion(t *testing.T) {
 
 	for _, tt := range []struct {
 		description string
-		contentType picoshare.ContentType
+		contentType femtoshare.ContentType
 		streams     []probeStream
 		want        bool
 	}{
@@ -85,8 +85,8 @@ func TestNeedsConversion(t *testing.T) {
 
 func TestMp4Filename(t *testing.T) {
 	for _, tt := range []struct {
-		input picoshare.Filename
-		want  picoshare.Filename
+		input femtoshare.Filename
+		want  femtoshare.Filename
 	}{
 		{"clip.mov", "clip.mp4"},
 		{"PXL_20261010_231108164.mp4", "PXL_20261010_231108164.mp4"},

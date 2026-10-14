@@ -12,8 +12,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
 )
 
 // maxEntryUnlockRequestBytes bounds the body of a request to unlock an entry.
@@ -22,13 +22,13 @@ import (
 const maxEntryUnlockRequestBytes = 4096
 
 type entryUnlockRequest struct {
-	EntryID    picoshare.EntryID
-	Passphrase picoshare.DownloadPassphrase
+	EntryID    femtoshare.EntryID
+	Passphrase femtoshare.DownloadPassphrase
 }
 
 func (s Server) entryGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -60,7 +60,7 @@ func (s Server) entryGet() http.HandlerFunc {
 func (s Server) entryUnlockGet() http.HandlerFunc {
 	t := parseTemplates("templates/pages/entry-unlock.html")
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -89,7 +89,7 @@ func (s Server) entryUnlockGet() http.HandlerFunc {
 			commonProps
 			IncorrectPassphrase bool
 		}{
-			commonProps:         makeCommonProps("PicoShare - Download", r.Context()),
+			commonProps:         makeCommonProps("FemtoShare - Download", r.Context()),
 			IncorrectPassphrase: false,
 		})
 	}
@@ -101,7 +101,7 @@ func (s Server) entryUnlockPost() http.HandlerFunc {
 		w.Header().Set("Cache-Control", "no-store")
 		r.Body = http.MaxBytesReader(w, r.Body, maxEntryUnlockRequestBytes)
 		unlockRequest, err := parseEntryUnlockRequest(r)
-		if err != nil && !errors.Is(err, picoshare.ErrInvalidPassphrase) {
+		if err != nil && !errors.Is(err, femtoshare.ErrInvalidPassphrase) {
 			http.Error(w, "invalid passphrase form", http.StatusBadRequest)
 			return
 		}
@@ -128,7 +128,7 @@ func (s Server) entryUnlockPost() http.HandlerFunc {
 				commonProps
 				IncorrectPassphrase bool
 			}{
-				commonProps:         makeCommonProps("PicoShare - Download", r.Context()),
+				commonProps:         makeCommonProps("FemtoShare - Download", r.Context()),
 				IncorrectPassphrase: true,
 			})
 			return
@@ -140,14 +140,14 @@ func (s Server) entryUnlockPost() http.HandlerFunc {
 }
 
 func parseEntryUnlockRequest(r *http.Request) (entryUnlockRequest, error) {
-	id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+	id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 	if err != nil {
 		return entryUnlockRequest{}, err
 	}
 	if err := r.ParseForm(); err != nil {
 		return entryUnlockRequest{}, err
 	}
-	passphrase, err := picoshare.NewDownloadPassphrase(r.PostForm.Get("passphrase"))
+	passphrase, err := femtoshare.NewDownloadPassphrase(r.PostForm.Get("passphrase"))
 	if err != nil {
 		return entryUnlockRequest{EntryID: id}, err
 	}
@@ -157,15 +157,15 @@ func parseEntryUnlockRequest(r *http.Request) (entryUnlockRequest, error) {
 	}, nil
 }
 
-func entryDownloadPath(id picoshare.EntryID) string {
+func entryDownloadPath(id femtoshare.EntryID) string {
 	return "/-" + id.String()
 }
 
-func entryUnlockPath(id picoshare.EntryID) string {
+func entryUnlockPath(id femtoshare.EntryID) string {
 	return entryDownloadPath(id) + "/unlock"
 }
 
-func (s Server) serveEntryContent(w http.ResponseWriter, r *http.Request, entry picoshare.UploadMetadata) {
+func (s Server) serveEntryContent(w http.ResponseWriter, r *http.Request, entry femtoshare.UploadMetadata) {
 	// Serve response in a sandbox so that if a user uploads JavaScript, it
 	// doesn't run in the same domain as the server.
 	w.Header().Set("Content-Security-Policy", "sandbox")
@@ -196,22 +196,22 @@ func (s Server) serveEntryContent(w http.ResponseWriter, r *http.Request, entry 
 	}
 }
 
-func inferContentTypeFromFilename(f picoshare.Filename) (picoshare.ContentType, error) {
+func inferContentTypeFromFilename(f femtoshare.Filename) (femtoshare.ContentType, error) {
 	// For files that modern browser can play natively, infer the content type if
 	// none was specified at upload time.
 	if mimetype := mime.TypeByExtension(filepath.Ext(f.String())); mimetype != "" {
-		return picoshare.ContentType(mimetype), nil
+		return femtoshare.ContentType(mimetype), nil
 	}
-	return picoshare.ContentType(""), errors.New("could not infer content type from filename")
+	return femtoshare.ContentType(""), errors.New("could not infer content type from filename")
 }
 
-func recordDownload(db Store, id picoshare.EntryID, t time.Time, remoteAddr, userAgent string) error {
+func recordDownload(db Store, id femtoshare.EntryID, t time.Time, remoteAddr, userAgent string) error {
 	ip, _, err := net.SplitHostPort(remoteAddr)
 	if err != nil {
 		ip = remoteAddr
 	}
 
-	return db.InsertEntryDownload(id, picoshare.DownloadRecord{
+	return db.InsertEntryDownload(id, femtoshare.DownloadRecord{
 		Time:      t,
 		ClientIP:  ip,
 		UserAgent: userAgent,

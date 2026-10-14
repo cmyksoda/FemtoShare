@@ -5,33 +5,33 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func TestGuestLinkLabel(t *testing.T) {
 	for _, tt := range []struct {
 		description string
 		input       string
-		output      picoshare.GuestLinkLabel
+		output      femtoshare.GuestLinkLabel
 		err         error
 	}{
 		{
 			description: "accept valid label",
 			input:       "For my good pals",
-			output:      picoshare.GuestLinkLabel("For my good pals"),
+			output:      femtoshare.GuestLinkLabel("For my good pals"),
 			err:         nil,
 		},
 		{
 			description: "allow empty label",
 			input:       "",
-			output:      picoshare.GuestLinkLabel(""),
+			output:      femtoshare.GuestLinkLabel(""),
 			err:         nil,
 		},
 		{
 			description: "reject labels that are too long",
 			input:       strings.Repeat("A", parse.MaxGuestLinkLabelLength+1),
-			output:      picoshare.GuestLinkLabel(""),
+			output:      femtoshare.GuestLinkLabel(""),
 			err:         parse.ErrGuestLinkLabelTooLong,
 		},
 	} {

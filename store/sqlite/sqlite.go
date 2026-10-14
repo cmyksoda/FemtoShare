@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 const (
@@ -21,7 +21,7 @@ type (
 		Path                  string
 		OptimizeForLitestream bool
 		Now                   func() time.Time
-		PicoShareChunkSize    uint64
+		FemtoShareChunkSize   uint64
 	}
 
 	Store struct {
@@ -64,7 +64,7 @@ func New(params Params) Store {
 
 	applyMigrations(db)
 
-	chunkSize := params.PicoShareChunkSize
+	chunkSize := params.FemtoShareChunkSize
 	if chunkSize == 0 {
 		chunkSize = defaultChunkSize
 	}
@@ -79,7 +79,7 @@ func New(params Params) Store {
 	return s
 }
 
-func formatExpirationTime(et picoshare.ExpirationTime) string {
+func formatExpirationTime(et femtoshare.ExpirationTime) string {
 	return formatTime(time.Time(et))
 }
 
@@ -87,7 +87,7 @@ func formatTime(t time.Time) string {
 	return t.UTC().Format(timeFormat)
 }
 
-func formatFileLifetime(lt picoshare.FileLifetime) string {
+func formatFileLifetime(lt femtoshare.FileLifetime) string {
 	return lt.String()
 }
 
@@ -95,10 +95,10 @@ func parseDatetime(s string) (time.Time, error) {
 	return time.Parse(timeFormat, s)
 }
 
-func parseFileLifetime(s string) (picoshare.FileLifetime, error) {
+func parseFileLifetime(s string) (femtoshare.FileLifetime, error) {
 	d, err := time.ParseDuration(s)
 	if err != nil {
-		return picoshare.FileLifetime{}, err
+		return femtoshare.FileLifetime{}, err
 	}
-	return picoshare.NewFileLifetimeFromDuration(d)
+	return femtoshare.NewFileLifetimeFromDuration(d)
 }

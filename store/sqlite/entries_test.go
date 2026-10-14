@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
-	"github.com/mtlynch/picoshare/store/test_sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
+	"github.com/cmyksoda/femtoshare/store/test_sqlite"
 )
 
 func TestInsertDeleteSingleEntry(t *testing.T) {
@@ -19,8 +19,8 @@ func TestInsertDeleteSingleEntry(t *testing.T) {
 	dataStore := test_sqlite.NewWithChunkSize(t, chunkSize)
 
 	input := "hello, world!"
-	if err := dataStore.InsertEntry(bytes.NewBufferString(input), picoshare.UploadMetadata{
-		ID:       picoshare.MustCreateEntryID("abcdefghij"),
+	if err := dataStore.InsertEntry(bytes.NewBufferString(input), femtoshare.UploadMetadata{
+		ID:       femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename: "dummy-file.txt",
 		Uploaded: mustParseTime("2025-05-25T00:00:00Z"),
 		Expires:  mustParseExpirationTime("2040-01-01T00:00:00Z"),
@@ -29,7 +29,7 @@ func TestInsertDeleteSingleEntry(t *testing.T) {
 		t.Fatalf("failed to insert file into sqlite: %v", err)
 	}
 
-	entryFile, err := dataStore.ReadEntryFile(picoshare.MustCreateEntryID("abcdefghij"))
+	entryFile, err := dataStore.ReadEntryFile(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to get entry from DB: %v", err)
 	}
@@ -60,11 +60,11 @@ func TestInsertDeleteSingleEntry(t *testing.T) {
 		t.Fatalf("unexpected download count in entry metadata: got %v, want %v", meta[0].DownloadCount, 0)
 	}
 
-	if got, want := meta[0].Filename, picoshare.Filename("dummy-file.txt"); got != want {
+	if got, want := meta[0].Filename, femtoshare.Filename("dummy-file.txt"); got != want {
 		t.Fatalf("filename=%s, want=%s", got, want)
 	}
 
-	err = dataStore.DeleteEntry(picoshare.MustCreateEntryID("abcdefghij"))
+	err = dataStore.DeleteEntry(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to delete entry: %v", err)
 	}
@@ -84,8 +84,8 @@ func TestReadLastByteOfEntry(t *testing.T) {
 	db := test_sqlite.NewWithChunkSize(t, chunkSize)
 
 	input := "hello, world!"
-	if err := db.InsertEntry(bytes.NewBufferString(input), picoshare.UploadMetadata{
-		ID:       picoshare.MustCreateEntryID("abcdefghij"),
+	if err := db.InsertEntry(bytes.NewBufferString(input), femtoshare.UploadMetadata{
+		ID:       femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename: "dummy-file.txt",
 		Uploaded: mustParseTime("2025-05-25T00:00:00Z"),
 		Expires:  mustParseExpirationTime("2040-01-01T00:00:00Z"),
@@ -94,7 +94,7 @@ func TestReadLastByteOfEntry(t *testing.T) {
 		t.Fatalf("failed to insert file into sqlite: %v", err)
 	}
 
-	entryFile, err := db.ReadEntryFile(picoshare.MustCreateEntryID("abcdefghij"))
+	entryFile, err := db.ReadEntryFile(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to read entry: %v", err)
 	}
@@ -121,14 +121,14 @@ func TestReadLastByteOfEntry(t *testing.T) {
 
 func TestUpdateEntryMetadata(t *testing.T) {
 	dataStore := test_sqlite.New(t)
-	passphrase, err := picoshare.NewDownloadPassphrase("correct horse battery staple")
+	passphrase, err := femtoshare.NewDownloadPassphrase("correct horse battery staple")
 	if err != nil {
 		t.Fatalf("failed to create download passphrase: %v", err)
 	}
 
 	data := "dummy data"
-	if err := dataStore.InsertEntry(strings.NewReader(data), picoshare.UploadMetadata{
-		ID:                 picoshare.MustCreateEntryID("abcdefghij"),
+	if err := dataStore.InsertEntry(strings.NewReader(data), femtoshare.UploadMetadata{
+		ID:                 femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename:           "dummy-file.txt",
 		Uploaded:           mustParseTime("2025-05-25T00:00:00Z"),
 		Expires:            mustParseExpirationTime("2040-01-01T00:00:00Z"),
@@ -138,7 +138,7 @@ func TestUpdateEntryMetadata(t *testing.T) {
 		t.Fatalf("failed to insert file into sqlite: %v", err)
 	}
 
-	metadata, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID("abcdefghij"))
+	metadata, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to retrieve entry metadata: %v", err)
 	}
@@ -146,20 +146,20 @@ func TestUpdateEntryMetadata(t *testing.T) {
 		t.Errorf("download passphrase=%q, want=%q", got, want)
 	}
 
-	if err := dataStore.UpdateEntryMetadata(picoshare.MustCreateEntryID("abcdefghij"), picoshare.UploadMetadata{
+	if err := dataStore.UpdateEntryMetadata(femtoshare.MustCreateEntryID("abcdefghij"), femtoshare.UploadMetadata{
 		Filename:           "renamed-file.txt",
 		Expires:            mustParseExpirationTime("2041-01-01T00:00:00Z"),
-		Note:               picoshare.FileNote{Value: new("updated note")},
-		DownloadPassphrase: picoshare.DownloadPassphrase{},
+		Note:               femtoshare.FileNote{Value: new("updated note")},
+		DownloadPassphrase: femtoshare.DownloadPassphrase{},
 	}); err != nil {
 		t.Fatalf("failed to update entry metadata: %v", err)
 	}
 
-	metadata, err = dataStore.GetEntryMetadata(picoshare.MustCreateEntryID("abcdefghij"))
+	metadata, err = dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to retrieve entry metadata: %v", err)
 	}
-	if got, want := metadata.Filename, picoshare.Filename("renamed-file.txt"); got != want {
+	if got, want := metadata.Filename, femtoshare.Filename("renamed-file.txt"); got != want {
 		t.Errorf("filename=%q, want=%q", got, want)
 	}
 	if got, want := metadata.Expires, mustParseExpirationTime("2041-01-01T00:00:00Z"); got != want {
@@ -177,8 +177,8 @@ func TestReplaceEntryFile(t *testing.T) {
 	dataStore := test_sqlite.NewWithChunkSize(t, uint64(4))
 
 	original := "original contents"
-	if err := dataStore.InsertEntry(strings.NewReader(original), picoshare.UploadMetadata{
-		ID:          picoshare.MustCreateEntryID("abcdefghij"),
+	if err := dataStore.InsertEntry(strings.NewReader(original), femtoshare.UploadMetadata{
+		ID:          femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename:    "clip.mov",
 		ContentType: "video/quicktime",
 		Uploaded:    mustParseTime("2025-05-25T00:00:00Z"),
@@ -189,11 +189,11 @@ func TestReplaceEntryFile(t *testing.T) {
 	}
 
 	replacement := "new"
-	if err := dataStore.ReplaceEntryFile(picoshare.MustCreateEntryID("abcdefghij"), strings.NewReader(replacement), "video/mp4", "clip.mp4"); err != nil {
+	if err := dataStore.ReplaceEntryFile(femtoshare.MustCreateEntryID("abcdefghij"), strings.NewReader(replacement), "video/mp4", "clip.mp4"); err != nil {
 		t.Fatalf("failed to replace entry file: %v", err)
 	}
 
-	entryFile, err := dataStore.ReadEntryFile(picoshare.MustCreateEntryID("abcdefghij"))
+	entryFile, err := dataStore.ReadEntryFile(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to get entry from DB: %v", err)
 	}
@@ -205,14 +205,14 @@ func TestReplaceEntryFile(t *testing.T) {
 		t.Errorf("contents=%q, want=%q", got, want)
 	}
 
-	metadata, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID("abcdefghij"))
+	metadata, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID("abcdefghij"))
 	if err != nil {
 		t.Fatalf("failed to retrieve entry metadata: %v", err)
 	}
-	if got, want := metadata.Filename, picoshare.Filename("clip.mp4"); got != want {
+	if got, want := metadata.Filename, femtoshare.Filename("clip.mp4"); got != want {
 		t.Errorf("filename=%q, want=%q", got, want)
 	}
-	if got, want := metadata.ContentType, picoshare.ContentType("video/mp4"); got != want {
+	if got, want := metadata.ContentType, femtoshare.ContentType("video/mp4"); got != want {
 		t.Errorf("content type=%q, want=%q", got, want)
 	}
 	if got, want := metadata.Size, mustParseFileSize(len(replacement)); got != want {
@@ -223,7 +223,7 @@ func TestReplaceEntryFile(t *testing.T) {
 func TestReplaceEntryFileOfDeletedEntry(t *testing.T) {
 	dataStore := test_sqlite.New(t)
 
-	err := dataStore.ReplaceEntryFile(picoshare.MustCreateEntryID("abcdefghij"), strings.NewReader("new"), "video/mp4", "clip.mp4")
+	err := dataStore.ReplaceEntryFile(femtoshare.MustCreateEntryID("abcdefghij"), strings.NewReader("new"), "video/mp4", "clip.mp4")
 	if _, ok := errors.AsType[store.EntryNotFoundError](err); !ok {
 		t.Errorf("err=%v, want EntryNotFoundError", err)
 	}
@@ -234,14 +234,14 @@ func TestReplaceEntryFileOfDeletedEntry(t *testing.T) {
 // leaves them out.
 func TestGetEntriesMetadataOmitsDownloadPassphrase(t *testing.T) {
 	dataStore := test_sqlite.New(t)
-	passphrase, err := picoshare.NewDownloadPassphrase("correct horse battery staple")
+	passphrase, err := femtoshare.NewDownloadPassphrase("correct horse battery staple")
 	if err != nil {
 		t.Fatalf("failed to create download passphrase: %v", err)
 	}
 
 	data := "dummy data"
-	if err := dataStore.InsertEntry(strings.NewReader(data), picoshare.UploadMetadata{
-		ID:                 picoshare.MustCreateEntryID("abcdefghij"),
+	if err := dataStore.InsertEntry(strings.NewReader(data), femtoshare.UploadMetadata{
+		ID:                 femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename:           "dummy-file.txt",
 		Uploaded:           mustParseTime("2025-05-25T00:00:00Z"),
 		Expires:            mustParseExpirationTime("2040-01-01T00:00:00Z"),
@@ -271,16 +271,16 @@ func mustParseTime(s string) time.Time {
 	return t
 }
 
-func mustParseExpirationTime(s string) picoshare.ExpirationTime {
+func mustParseExpirationTime(s string) femtoshare.ExpirationTime {
 	et, err := time.Parse(time.RFC3339, s)
 	if err != nil {
 		panic(err)
 	}
-	return picoshare.ExpirationTime(et)
+	return femtoshare.ExpirationTime(et)
 }
 
-func mustParseFileSize(val int) picoshare.FileSize {
-	fileSize, err := picoshare.FileSizeFromInt(val)
+func mustParseFileSize(val int) femtoshare.FileSize {
+	fileSize, err := femtoshare.FileSizeFromInt(val)
 	if err != nil {
 		panic(err)
 	}

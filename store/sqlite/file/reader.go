@@ -6,13 +6,13 @@ import (
 	"io"
 	"log"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 type (
 	fileReader struct {
 		db         *sql.DB
-		entryID    picoshare.EntryID
+		entryID    femtoshare.EntryID
 		fileLength int64
 		offset     int64
 		chunkSize  int64
@@ -20,7 +20,7 @@ type (
 	}
 )
 
-func NewReader(db *sql.DB, id picoshare.EntryID) (io.ReadSeeker, error) {
+func NewReader(db *sql.DB, id femtoshare.EntryID) (io.ReadSeeker, error) {
 	chunkSize, err := getChunkSize(db, id)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (fr *fileReader) populateBuffer() error {
 	return nil
 }
 
-func getFileLength(db *sql.DB, id picoshare.EntryID, chunkSize int64) (int64, error) {
+func getFileLength(db *sql.DB, id femtoshare.EntryID, chunkSize int64) (int64, error) {
 	var chunkIndex int64
 	var chunkLen int64
 	if err := db.QueryRow(`
@@ -139,10 +139,10 @@ func getFileLength(db *sql.DB, id picoshare.EntryID, chunkSize int64) (int64, er
 	return (chunkSize * chunkIndex) + chunkLen, nil
 }
 
-// getChunkSize determines the chunk size that PicoShare used to save the given
+// getChunkSize determines the chunk size that FemtoShare used to save the given
 // entry in SQLite. Even though the chunk size is theoretically a constant, it
-// might change in different versions of PicoShare.
-func getChunkSize(db *sql.DB, id picoshare.EntryID) (int64, error) {
+// might change in different versions of FemtoShare.
+func getChunkSize(db *sql.DB, id femtoshare.EntryID) (int64, error) {
 	var chunkSize int64
 	if err := db.QueryRow(`
 	SELECT

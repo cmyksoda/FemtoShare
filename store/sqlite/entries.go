@@ -7,12 +7,12 @@ import (
 	"io"
 	"log"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
-	"github.com/mtlynch/picoshare/store/sqlite/file"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
+	"github.com/cmyksoda/femtoshare/store/sqlite/file"
 )
 
-func (s Store) GetEntriesMetadata() ([]picoshare.UploadMetadata, error) {
+func (s Store) GetEntriesMetadata() ([]femtoshare.UploadMetadata, error) {
 	rows, err := s.db.Query(`
 	SELECT
 		entries.id AS id,
@@ -35,10 +35,10 @@ func (s Store) GetEntriesMetadata() ([]picoshare.UploadMetadata, error) {
 				id
 		) sizes ON entries.id = sizes.id`)
 	if err != nil {
-		return []picoshare.UploadMetadata{}, err
+		return []femtoshare.UploadMetadata{}, err
 	}
 
-	ee := []picoshare.UploadMetadata{}
+	ee := []femtoshare.UploadMetadata{}
 	for rows.Next() {
 		var id string
 		var filename string
@@ -48,35 +48,35 @@ func (s Store) GetEntriesMetadata() ([]picoshare.UploadMetadata, error) {
 		var expirationTimeRaw string
 		var fileSizeRaw uint64
 		if err = rows.Scan(&id, &filename, &note, &contentType, &uploadTimeRaw, &expirationTimeRaw, &fileSizeRaw); err != nil {
-			return []picoshare.UploadMetadata{}, err
+			return []femtoshare.UploadMetadata{}, err
 		}
-		entryID, err := picoshare.EntryIDFromString(id)
+		entryID, err := femtoshare.EntryIDFromString(id)
 		if err != nil {
-			return []picoshare.UploadMetadata{}, fmt.Errorf("failed to parse entry ID from database: %w", err)
+			return []femtoshare.UploadMetadata{}, fmt.Errorf("failed to parse entry ID from database: %w", err)
 		}
 
 		ut, err := parseDatetime(uploadTimeRaw)
 		if err != nil {
-			return []picoshare.UploadMetadata{}, err
+			return []femtoshare.UploadMetadata{}, err
 		}
 
 		et, err := parseDatetime(expirationTimeRaw)
 		if err != nil {
-			return []picoshare.UploadMetadata{}, err
+			return []femtoshare.UploadMetadata{}, err
 		}
 
-		fileSize, err := picoshare.FileSizeFromUint64(fileSizeRaw)
+		fileSize, err := femtoshare.FileSizeFromUint64(fileSizeRaw)
 		if err != nil {
-			return []picoshare.UploadMetadata{}, err
+			return []femtoshare.UploadMetadata{}, err
 		}
 
-		ee = append(ee, picoshare.UploadMetadata{
+		ee = append(ee, femtoshare.UploadMetadata{
 			ID:          entryID,
-			Filename:    picoshare.Filename(filename),
-			Note:        picoshare.FileNote{Value: note},
-			ContentType: picoshare.ContentType(contentType),
+			Filename:    femtoshare.Filename(filename),
+			Note:        femtoshare.FileNote{Value: note},
+			ContentType: femtoshare.ContentType(contentType),
 			Uploaded:    ut,
-			Expires:     picoshare.ExpirationTime(et),
+			Expires:     femtoshare.ExpirationTime(et),
 			Size:        fileSize,
 		})
 	}
@@ -84,7 +84,7 @@ func (s Store) GetEntriesMetadata() ([]picoshare.UploadMetadata, error) {
 	return ee, nil
 }
 
-func (s Store) ReadEntryFile(id picoshare.EntryID) (io.ReadSeeker, error) {
+func (s Store) ReadEntryFile(id femtoshare.EntryID) (io.ReadSeeker, error) {
 	r, err := file.NewReader(s.db, id)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (s Store) ReadEntryFile(id picoshare.EntryID) (io.ReadSeeker, error) {
 	return r, nil
 }
 
-func (s Store) GetEntryMetadata(id picoshare.EntryID) (picoshare.UploadMetadata, error) {
+func (s Store) GetEntryMetadata(id femtoshare.EntryID) (femtoshare.UploadMetadata, error) {
 	var filename string
 	var note *string
 	var contentType string
@@ -101,7 +101,7 @@ func (s Store) GetEntryMetadata(id picoshare.EntryID) (picoshare.UploadMetadata,
 	var expirationTimeRaw string
 	var downloadPassphraseRaw *string
 	var fileSizeRaw uint64
-	var guestLinkID *picoshare.GuestLinkID
+	var guestLinkID *femtoshare.GuestLinkID
 	err := s.db.QueryRow(`
 	SELECT
 		entries.filename AS filename,
@@ -127,52 +127,52 @@ func (s Store) GetEntryMetadata(id picoshare.EntryID) (picoshare.UploadMetadata,
 	WHERE
 		entries.id = :entry_id`, sql.Named("entry_id", id.String())).Scan(&filename, &note, &contentType, &uploadTimeRaw, &expirationTimeRaw, &downloadPassphraseRaw, &fileSizeRaw, &guestLinkID)
 	if err == sql.ErrNoRows {
-		return picoshare.UploadMetadata{}, store.EntryNotFoundError{ID: id}
+		return femtoshare.UploadMetadata{}, store.EntryNotFoundError{ID: id}
 	} else if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
-	var guestLink picoshare.GuestLink
+	var guestLink femtoshare.GuestLink
 	if guestLinkID != nil && !guestLinkID.Empty() {
 		guestLink, err = s.GetGuestLink(*guestLinkID)
 		if err != nil {
-			return picoshare.UploadMetadata{}, err
+			return femtoshare.UploadMetadata{}, err
 		}
 	}
 
 	ut, err := parseDatetime(uploadTimeRaw)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
 	et, err := parseDatetime(expirationTimeRaw)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
-	fileSize, err := picoshare.FileSizeFromUint64(fileSizeRaw)
+	fileSize, err := femtoshare.FileSizeFromUint64(fileSizeRaw)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 	downloadPassphrase, err := parseDownloadPassphrase(downloadPassphraseRaw)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
-	return picoshare.UploadMetadata{
+	return femtoshare.UploadMetadata{
 		ID:                 id,
-		Filename:           picoshare.Filename(filename),
+		Filename:           femtoshare.Filename(filename),
 		GuestLink:          guestLink,
-		Note:               picoshare.FileNote{Value: note},
-		ContentType:        picoshare.ContentType(contentType),
+		Note:               femtoshare.FileNote{Value: note},
+		ContentType:        femtoshare.ContentType(contentType),
 		Uploaded:           ut,
-		Expires:            picoshare.ExpirationTime(et),
+		Expires:            femtoshare.ExpirationTime(et),
 		Size:               fileSize,
 		DownloadPassphrase: downloadPassphrase,
 	}, nil
 }
 
-func (s Store) InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) error {
+func (s Store) InsertEntry(reader io.Reader, metadata femtoshare.UploadMetadata) error {
 	log.Printf("saving new entry %s", metadata.ID)
 
 	// Note: We deliberately don't use a transaction here, as it bloats memory, so
@@ -222,12 +222,12 @@ func (s Store) InsertEntry(reader io.Reader, metadata picoshare.UploadMetadata) 
 
 // ReplaceEntryFile swaps an entry's file contents in place, keeping its ID so
 // existing share links stay valid.
-func (s Store) ReplaceEntryFile(id picoshare.EntryID, reader io.Reader, contentType picoshare.ContentType, filename picoshare.Filename) error {
+func (s Store) ReplaceEntryFile(id femtoshare.EntryID, reader io.Reader, contentType femtoshare.ContentType, filename femtoshare.Filename) error {
 	log.Printf("replacing file contents of entry %s", id)
 
 	// Stage the new chunks under a throwaway ID so readers never see a
 	// half-written file.
-	stagingID := picoshare.NewEntryID()
+	stagingID := femtoshare.NewEntryID()
 	w := file.NewWriter(s.db, stagingID, s.chunkSize)
 	written, err := io.Copy(w, reader)
 	if err != nil {
@@ -312,14 +312,14 @@ func (s Store) ReplaceEntryFile(id picoshare.EntryID, reader io.Reader, contentT
 	return nil
 }
 
-func parseDownloadPassphrase(raw *string) (picoshare.DownloadPassphrase, error) {
+func parseDownloadPassphrase(raw *string) (femtoshare.DownloadPassphrase, error) {
 	if raw == nil {
-		return picoshare.DownloadPassphrase{}, nil
+		return femtoshare.DownloadPassphrase{}, nil
 	}
-	return picoshare.NewDownloadPassphrase(*raw)
+	return femtoshare.NewDownloadPassphrase(*raw)
 }
 
-func downloadPassphraseString(passphrase picoshare.DownloadPassphrase) *string {
+func downloadPassphraseString(passphrase femtoshare.DownloadPassphrase) *string {
 	if passphrase.Empty() {
 		return nil
 	}
@@ -327,7 +327,7 @@ func downloadPassphraseString(passphrase picoshare.DownloadPassphrase) *string {
 	return &s
 }
 
-func (s Store) UpdateEntryMetadata(id picoshare.EntryID, metadata picoshare.UploadMetadata) error {
+func (s Store) UpdateEntryMetadata(id femtoshare.EntryID, metadata femtoshare.UploadMetadata) error {
 	log.Printf("updating metadata for entry %s", id)
 
 	res, err := s.db.Exec(`
@@ -359,7 +359,7 @@ func (s Store) UpdateEntryMetadata(id picoshare.EntryID, metadata picoshare.Uplo
 	return nil
 }
 
-func (s Store) DeleteEntry(id picoshare.EntryID) error {
+func (s Store) DeleteEntry(id femtoshare.EntryID) error {
 	log.Printf("deleting entry %v", id)
 
 	tx, err := s.db.BeginTx(context.Background(), nil)

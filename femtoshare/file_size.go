@@ -1,4 +1,4 @@
-package picoshare
+package femtoshare
 
 import "errors"
 

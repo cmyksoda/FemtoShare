@@ -1,4 +1,4 @@
-app = "picoshare"
+app = "femtoshare"
 primary_region = "iad"
 kill_signal = "SIGINT"
 kill_timeout = "5s"
@@ -7,7 +7,7 @@ kill_timeout = "5s"
   auto_rollback = true
 
 [env]
-  LITESTREAM_BUCKET = "picoshare-litestream"
+  LITESTREAM_BUCKET = "femtoshare-litestream"
   LITESTREAM_ENDPOINT = "s3.us-west-002.backblazeb2.com"
   LITESTREAM_RETENTION = "72h"
   PORT = "8080"

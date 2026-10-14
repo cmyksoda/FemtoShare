@@ -5,27 +5,27 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func TestFilename(t *testing.T) {
 	for _, tt := range []struct {
 		description string
 		input       string
-		output      picoshare.Filename
+		output      femtoshare.Filename
 		err         error
 	}{
 		{
 			description: "accept valid filename",
 			input:       "dummy.png",
-			output:      picoshare.Filename("dummy.png"),
+			output:      femtoshare.Filename("dummy.png"),
 			err:         nil,
 		},
 		{
 			description: "accept filename that's the maximum length",
 			input:       strings.Repeat("A", parse.MaxFilenameBytes),
-			output:      picoshare.Filename(strings.Repeat("A", parse.MaxFilenameBytes)),
+			output:      femtoshare.Filename(strings.Repeat("A", parse.MaxFilenameBytes)),
 			err:         nil,
 		},
 		{

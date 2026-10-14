@@ -1,0 +1,29 @@
+FemtoShare
+https://github.com/cmyksoda/FemtoShare
+
+FemtoShare is a fork of PicoShare (https://github.com/mtlynch/picoshare),
+copyright Michael Lynch, licensed under the GNU Affero General Public License
+version 3. FemtoShare's changes are released under the same license. See
+LICENSE for the full text.
+
+Third-party software in the Docker image
+----------------------------------------
+
+The FemtoShare Docker image includes FFmpeg (https://ffmpeg.org), which
+FemtoShare runs as a separate program to convert uploaded videos. The image
+installs FFmpeg from Alpine Linux's "ffmpeg" package. That build is licensed
+under the GNU General Public License version 3 or later because it enables
+GPL components such as libx264 and libx265. It does not include any
+"nonfree" components; AAC audio is encoded with FFmpeg's built-in encoder.
+
+The source code for that FFmpeg build, including Alpine's build recipe and
+patches, is available from Alpine Linux:
+
+  https://gitlab.alpinelinux.org/alpine/aports/-/tree/3.22-stable/community/ffmpeg
+  https://ffmpeg.org/releases/
+
+Other Alpine packages in the image are distributed under their own licenses,
+which you can list from inside the container with "apk info --license".
+
+H.264 and AAC are covered by patents in some countries. This notice is not
+legal advice about patent licensing.

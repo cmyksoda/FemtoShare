@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func TestExpiration(t *testing.T) {
@@ -14,7 +14,7 @@ func TestExpiration(t *testing.T) {
 		description string
 		currentTime time.Time
 		input       string
-		output      picoshare.ExpirationTime
+		output      femtoshare.ExpirationTime
 		err         error
 	}{
 		{
@@ -28,21 +28,21 @@ func TestExpiration(t *testing.T) {
 			description: "reject expiration time in the past",
 			currentTime: mustParseDate("2024-06-01"),
 			input:       "2024-01-01T00:00:00Z",
-			output:      picoshare.ExpirationTime{},
+			output:      femtoshare.ExpirationTime{},
 			err:         parse.ErrExpirationTooSoon,
 		},
 		{
 			description: "empty string is invalid",
 			currentTime: mustParseDate("2024-06-01"),
 			input:       "",
-			output:      picoshare.ExpirationTime{},
+			output:      femtoshare.ExpirationTime{},
 			err:         parse.ErrExpirationUnrecognizedFormat,
 		},
 		{
 			description: "string with letters causes error",
 			currentTime: mustParseDate("2024-06-01"),
 			input:       "banana",
-			output:      picoshare.ExpirationTime{},
+			output:      femtoshare.ExpirationTime{},
 			err:         parse.ErrExpirationUnrecognizedFormat,
 		},
 	} {
@@ -58,12 +58,12 @@ func TestExpiration(t *testing.T) {
 	}
 }
 
-func mustParseExpiration(s string) picoshare.ExpirationTime {
+func mustParseExpiration(s string) femtoshare.ExpirationTime {
 	et, err := time.Parse(time.RFC3339, s)
 	if err != nil {
 		panic(err)
 	}
-	return picoshare.ExpirationTime(et)
+	return femtoshare.ExpirationTime(et)
 }
 
 func mustParseDate(s string) time.Time {

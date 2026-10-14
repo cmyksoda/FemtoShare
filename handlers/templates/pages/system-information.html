@@ -73,7 +73,7 @@
       ({{ $usagePercent }}) used of {{ formatDiskUsage .TotalBytes }} total
     </li>
     <li>
-      <strong>PicoShare usage</strong>
+      <strong>FemtoShare usage</strong>
       <ul>
         <li>
           <strong>Upload data</strong>:
@@ -93,21 +93,17 @@
 
   <div class="notification alert alert-info d-none">
     <p>
-      PicoShare's database files occupy more disk space than the sum total of
-      PicoShare's file uploads.
+      FemtoShare's database files occupy more disk space than the sum total of
+      FemtoShare's file uploads.
     </p>
     <p>
-      After files are deleted, PicoShare retains the space and reuses it to
-      store future uploads. To manually shrink PicoShare's database files down
-      to the total size of the upload data, see the
-      <a
-        href="https://github.com/mtlynch/picoshare?tab=readme-ov-file#reclaiming-reserved-database-space"
-        >README</a
-      >.
+      The database also stores each file's details and search indexes. Space
+      from deleted files and converted videos goes back to the filesystem
+      automatically.
     </p>
   </div>
 
-  <h2>PicoShare Version</h2>
+  <h2>FemtoShare Version</h2>
   <ul>
     <li><strong>Version</strong>: {{ .Version }}</li>
     {{ if .Revision }}

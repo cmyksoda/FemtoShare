@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Create a fly.toml file to deploy PicoShare to fly.io.
+# Create a fly.toml file to deploy FemtoShare to fly.io.
 
 # Exit on first error.
 set -e

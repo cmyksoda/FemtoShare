@@ -15,7 +15,7 @@ readonly SCRIPT_DIR
 cd "${SCRIPT_DIR}/.."
 
 DOCKER_BUILDKIT=1 \
-  docker build -t picoshare .
+  docker build -t femtoshare .
 
 if [[ -f .env.dev ]]; then
   set +x
@@ -26,7 +26,7 @@ fi
 
 PS_SHARED_SECRET=somepassword
 
-docker rm -f picoshare || true
+docker rm -f femtoshare || true
 
 docker run \
   --env "PORT=4002" \
@@ -36,5 +36,5 @@ docker run \
   --env "LITESTREAM_ACCESS_KEY_ID=${LITESTREAM_ACCESS_KEY_ID:-}" \
   --env "LITESTREAM_SECRET_ACCESS_KEY=${LITESTREAM_SECRET_ACCESS_KEY:-}" \
   --publish "0.0.0.0:4002:4002" \
-  --name picoshare \
-  picoshare
+  --name femtoshare \
+  femtoshare

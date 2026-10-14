@@ -1,12 +1,12 @@
 # Contributing
 
-Thanks for being interested in PicoShare!
+Thanks for being interested in FemtoShare!
 
-This document is meant to help developers get up to speed on PicoShare so that they can start development with as little frustration as possible.
+This document is meant to help developers get up to speed on FemtoShare so that they can start development with as little frustration as possible.
 
 ## Setting up a development environment
 
-The steps below show you how to quickly set up a development environment for PicoShare.
+The steps below show you how to quickly set up a development environment for FemtoShare.
 
 ### Requirements
 
@@ -15,7 +15,7 @@ The steps below show you how to quickly set up a development environment for Pic
 
 ### Install frontend dev dependencies
 
-PicoShare uses the several Node.js packages to format and perform static analysis of the code. To install those dependencies, run:
+FemtoShare uses the several Node.js packages to format and perform static analysis of the code. To install those dependencies, run:
 
 ```bash
 npm install
@@ -23,7 +23,7 @@ npm install
 
 ### Run automated tests
 
-To run PicoShare's build scripts before making a PR, run:
+To run FemtoShare's build scripts before making a PR, run:
 
 ```bash
 dev-scripts/git-hooks/pre-commit
@@ -31,7 +31,7 @@ dev-scripts/git-hooks/pre-commit
 
 ### Enable Git hooks
 
-If you're planning to contribute code to PicoShare, it's a good idea to enable the standard Git hooks so that build scripts run before you commit. That way, you can see if basic tests pass in a few seconds rather than waiting a few minutes to watch them run in CircleCI.
+If you're planning to contribute code to FemtoShare, it's a good idea to enable the standard Git hooks so that build scripts run before you commit. That way, you can see if basic tests pass in a few seconds rather than waiting a few minutes to watch them run in CircleCI.
 
 ```bash
 ./dev-scripts/enable-git-hooks
@@ -39,7 +39,7 @@ If you're planning to contribute code to PicoShare, it's a good idea to enable t
 
 ### Run in dev mode
 
-To run PicoShare locally with hot-reloading, run:
+To run FemtoShare locally with hot-reloading, run:
 
 ```bash
 ./dev-scripts/serve-dev
@@ -66,12 +66,12 @@ After installing Playwright, to run the e2e tests, run the following script:
 
 ## Code style conventions
 
-PicoShare follows Google code style conventions:
+FemtoShare follows Google code style conventions:
 
 - [HTML/CSS](https://google.github.io/styleguide/htmlcssguide.html)
 - [Shell](https://google.github.io/styleguide/shellguide.html)
 
-PicoShare uses automated linters and formatters as much as possible to automate style conventions.
+FemtoShare uses automated linters and formatters as much as possible to automate style conventions.
 
 ### Formatting Golang
 

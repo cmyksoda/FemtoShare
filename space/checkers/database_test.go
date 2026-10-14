@@ -5,16 +5,16 @@ import (
 	"math"
 	"testing"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/space/checkers"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/space/checkers"
 )
 
 type mockDatabaseReader struct {
-	metadataEntries []picoshare.UploadMetadata
+	metadataEntries []femtoshare.UploadMetadata
 	err             error
 }
 
-func (r mockDatabaseReader) GetEntriesMetadata() ([]picoshare.UploadMetadata, error) {
+func (r mockDatabaseReader) GetEntriesMetadata() ([]femtoshare.UploadMetadata, error) {
 	return r.metadataEntries, r.err
 }
 
@@ -22,14 +22,14 @@ func TestTotalSize(t *testing.T) {
 	dummyDatabaseReaderErr := errors.New("dummy database reader error")
 	for _, tt := range []struct {
 		description   string
-		dbEntries     []picoshare.UploadMetadata
+		dbEntries     []femtoshare.UploadMetadata
 		dbErr         error
 		totalExpected uint64
 		errExpected   error
 	}{
 		{
 			description: "returns the sum of the database entries",
-			dbEntries: []picoshare.UploadMetadata{
+			dbEntries: []femtoshare.UploadMetadata{
 				{
 					Size: mustParseFileSize(5),
 				},
@@ -46,7 +46,7 @@ func TestTotalSize(t *testing.T) {
 		},
 		{
 			description: "returns an error if the database sizes overflow int64",
-			dbEntries: []picoshare.UploadMetadata{
+			dbEntries: []femtoshare.UploadMetadata{
 				{
 					Size: mustParseFileSize(math.MaxUint64),
 				},
@@ -60,7 +60,7 @@ func TestTotalSize(t *testing.T) {
 		},
 		{
 			description:   "returns error when database checker fails",
-			dbEntries:     []picoshare.UploadMetadata{},
+			dbEntries:     []femtoshare.UploadMetadata{},
 			dbErr:         dummyDatabaseReaderErr,
 			totalExpected: 0,
 			errExpected:   dummyDatabaseReaderErr,
@@ -84,8 +84,8 @@ func TestTotalSize(t *testing.T) {
 	}
 }
 
-func mustParseFileSize(val uint64) picoshare.FileSize {
-	fileSize, err := picoshare.FileSizeFromUint64(val)
+func mustParseFileSize(val uint64) femtoshare.FileSize {
+	fileSize, err := femtoshare.FileSizeFromUint64(val)
 	if err != nil {
 		panic(err)
 	}

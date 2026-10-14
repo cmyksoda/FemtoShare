@@ -8,7 +8,7 @@ COPY ./cmd /app/cmd
 COPY ./dev-scripts /app/dev-scripts
 COPY ./garbagecollect /app/garbagecollect
 COPY ./handlers /app/handlers
-COPY ./picoshare /app/picoshare
+COPY ./femtoshare /app/femtoshare
 COPY ./random /app/random
 COPY ./space /app/space
 COPY ./store /app/store
@@ -21,7 +21,7 @@ RUN TARGETPLATFORM="${TARGETPLATFORM}" \
     ./dev-scripts/build-backend "prod"
 
 FROM scratch AS artifact
-COPY --from=builder /app/bin/picoshare ./
+COPY --from=builder /app/bin/femtoshare ./
 
 FROM debian:stable-20240311-slim AS litestream_downloader
 
@@ -54,7 +54,7 @@ FROM alpine:3.22
 
 RUN apk add --no-cache bash ffmpeg
 
-COPY --from=builder /app/bin/picoshare /app/picoshare
+COPY --from=builder /app/bin/femtoshare /app/femtoshare
 COPY --from=litestream_downloader /litestream/litestream /app/litestream
 COPY ./docker-entrypoint /app/docker-entrypoint
 COPY ./litestream.yml /etc/litestream.yml

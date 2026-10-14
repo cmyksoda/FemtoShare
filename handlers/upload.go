@@ -10,9 +10,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
+	"github.com/cmyksoda/femtoshare/store"
 )
 
 type (
@@ -45,7 +45,7 @@ func (s Server) entryPost() http.HandlerFunc {
 		// We're intentionally not limiting the size of the request because we
 		// assume that the uploading user is trusted, so they can upload files of
 		// any size they want.
-		id, err := s.insertFileFromRequest(r, expiration, picoshare.GuestLinkID(""))
+		id, err := s.insertFileFromRequest(r, expiration, femtoshare.GuestLinkID(""))
 		if err != nil {
 			if _, ok := errors.AsType[*dbError](err); ok {
 				log.Printf("failed to insert uploaded file into data store: %v", err)
@@ -63,7 +63,7 @@ func (s Server) entryPost() http.HandlerFunc {
 
 func (s Server) entryPut() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
@@ -114,7 +114,7 @@ func (s Server) guestEntryPost() http.HandlerFunc {
 			return
 		}
 
-		if gl.MaxFileBytes != picoshare.GuestUploadUnlimitedFileSize {
+		if gl.MaxFileBytes != femtoshare.GuestUploadUnlimitedFileSize {
 			// We technically allow slightly less than the user specified because
 			// other fields in the request take up some space, but it's a difference
 			// of only a few hundred bytes.
@@ -153,7 +153,7 @@ func (s Server) guestEntryPost() http.HandlerFunc {
 	}
 }
 
-func (s Server) entryMetadataFromRequest(r *http.Request) (picoshare.UploadMetadata, error) {
+func (s Server) entryMetadataFromRequest(r *http.Request) (femtoshare.UploadMetadata, error) {
 	var payload struct {
 		Filename           string `json:"filename"`
 		Expiration         string `json:"expiration"`
@@ -163,38 +163,38 @@ func (s Server) entryMetadataFromRequest(r *http.Request) (picoshare.UploadMetad
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		log.Printf("failed to decode JSON request: %v", err)
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
 	filename, err := parse.Filename(payload.Filename)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
 	// Treat an empty expiration string as NeverExpire.
-	expiration := picoshare.NeverExpire
+	expiration := femtoshare.NeverExpire
 	if payload.Expiration != "" {
 		expiration, err = parse.Expiration(payload.Expiration, s.now())
 		if err != nil {
-			return picoshare.UploadMetadata{}, err
+			return femtoshare.UploadMetadata{}, err
 		}
 	}
 
 	note, err := parse.FileNote(payload.Note)
 	if err != nil {
-		return picoshare.UploadMetadata{}, err
+		return femtoshare.UploadMetadata{}, err
 	}
 
 	// An empty or missing passphrase removes the entry's download passphrase.
-	downloadPassphrase := picoshare.DownloadPassphrase{}
+	downloadPassphrase := femtoshare.DownloadPassphrase{}
 	if payload.DownloadPassphrase != "" {
-		downloadPassphrase, err = picoshare.NewDownloadPassphrase(payload.DownloadPassphrase)
+		downloadPassphrase, err = femtoshare.NewDownloadPassphrase(payload.DownloadPassphrase)
 		if err != nil {
-			return picoshare.UploadMetadata{}, err
+			return femtoshare.UploadMetadata{}, err
 		}
 	}
 
-	return picoshare.UploadMetadata{
+	return femtoshare.UploadMetadata{
 		Filename:           filename,
 		Expires:            expiration,
 		Note:               note,
@@ -202,12 +202,12 @@ func (s Server) entryMetadataFromRequest(r *http.Request) (picoshare.UploadMetad
 	}, nil
 }
 
-func (s Server) insertFileFromRequest(r *http.Request, expiration picoshare.ExpirationTime, guestLinkID picoshare.GuestLinkID) (picoshare.EntryID, error) {
+func (s Server) insertFileFromRequest(r *http.Request, expiration femtoshare.ExpirationTime, guestLinkID femtoshare.GuestLinkID) (femtoshare.EntryID, error) {
 	// ParseMultipartForm can go above the limit we set, so set a conservative RAM
 	// limit to avoid exhausting RAM on servers with limited resources.
 	multipartMaxMemory := mibToBytes(1)
 	if err := r.ParseMultipartForm(multipartMaxMemory); err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 	defer func() {
 		if err := r.MultipartForm.RemoveAll(); err != nil {
@@ -217,52 +217,52 @@ func (s Server) insertFileFromRequest(r *http.Request, expiration picoshare.Expi
 
 	reader, metadata, err := r.FormFile("file")
 	if err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 
-	fileSize, err := picoshare.FileSizeFromInt64(metadata.Size)
+	fileSize, err := femtoshare.FileSizeFromInt64(metadata.Size)
 	if err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 
 	filename, err := parse.Filename(metadata.Filename)
 	if err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 
 	contentType, err := parseContentType(metadata.Header.Get("Content-Type"))
 	if err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 
 	note, err := parse.FileNote(r.FormValue("note"))
 	if err != nil {
-		return picoshare.EntryID{}, err
+		return femtoshare.EntryID{}, err
 	}
 
 	if guestLinkID != "" && note.Value != nil {
-		return picoshare.EntryID{}, errors.New("guest uploads cannot have file notes")
+		return femtoshare.EntryID{}, errors.New("guest uploads cannot have file notes")
 	}
 
-	downloadPassphrase := picoshare.DownloadPassphrase{}
+	downloadPassphrase := femtoshare.DownloadPassphrase{}
 	if rawDownloadPassphrase := r.FormValue("downloadPassphrase"); rawDownloadPassphrase != "" {
 		if guestLinkID != "" {
-			return picoshare.EntryID{}, errors.New("guest uploads cannot have download passphrases")
+			return femtoshare.EntryID{}, errors.New("guest uploads cannot have download passphrases")
 		}
-		downloadPassphrase, err = picoshare.NewDownloadPassphrase(rawDownloadPassphrase)
+		downloadPassphrase, err = femtoshare.NewDownloadPassphrase(rawDownloadPassphrase)
 		if err != nil {
-			return picoshare.EntryID{}, err
+			return femtoshare.EntryID{}, err
 		}
 	}
 
-	id := picoshare.NewEntryID()
+	id := femtoshare.NewEntryID()
 	err = s.store.InsertEntry(reader,
-		picoshare.UploadMetadata{
+		femtoshare.UploadMetadata{
 			ID:          id,
 			Filename:    filename,
 			ContentType: contentType,
 			Note:        note,
-			GuestLink: picoshare.GuestLink{
+			GuestLink: femtoshare.GuestLink{
 				ID: guestLinkID,
 			},
 			Uploaded:           s.now(),
@@ -272,23 +272,23 @@ func (s Server) insertFileFromRequest(r *http.Request, expiration picoshare.Expi
 		})
 	if err != nil {
 		log.Printf("failed to save entry: %v", err)
-		return picoshare.EntryID{}, dbError{err}
+		return femtoshare.EntryID{}, dbError{err}
 	}
 
 	return id, nil
 }
 
-func parseContentType(s string) (picoshare.ContentType, error) {
+func parseContentType(s string) (femtoshare.ContentType, error) {
 	// The content type header is fairly open-ended, so we're liberal in what
 	// values we accept.
-	return picoshare.ContentType(s), nil
+	return femtoshare.ContentType(s), nil
 }
 
-func (s Server) parseExpirationFromRequest(r *http.Request) (picoshare.ExpirationTime, error) {
+func (s Server) parseExpirationFromRequest(r *http.Request) (femtoshare.ExpirationTime, error) {
 	return parse.Expiration(r.URL.Query().Get("expiration"), s.now())
 }
 
-func (s Server) parseGuestExpirationFromRequest(r *http.Request, gl picoshare.GuestLink) (picoshare.ExpirationTime, error) {
+func (s Server) parseGuestExpirationFromRequest(r *http.Request, gl femtoshare.GuestLink) (femtoshare.ExpirationTime, error) {
 	expirationParam := r.URL.Query().Get("expiration")
 
 	// If no expiration is specified or it's empty (e.g., when the client is curl
@@ -300,7 +300,7 @@ func (s Server) parseGuestExpirationFromRequest(r *http.Request, gl picoshare.Gu
 
 	requestedExpiration, err := parse.Expiration(expirationParam, s.now())
 	if err != nil {
-		return picoshare.ExpirationTime{}, err
+		return femtoshare.ExpirationTime{}, err
 	}
 
 	// Validate that the requested expiration doesn't exceed the guest link's maximum.
@@ -308,7 +308,7 @@ func (s Server) parseGuestExpirationFromRequest(r *http.Request, gl picoshare.Gu
 
 	// If the requested expiration is beyond the guest link's maximum, reject it.
 	if requestedExpiration.Time().After(maxPermittedExpiration.Time()) {
-		return picoshare.ExpirationTime{},
+		return femtoshare.ExpirationTime{},
 			fmt.Errorf("requested expiration time of %v is beyond guest link's limit: %v",
 				requestedExpiration,
 				maxPermittedExpiration)

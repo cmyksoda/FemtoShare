@@ -9,7 +9,7 @@ set -u
 PS_PROCESS_ARGS=("$@")
 readonly -a PS_PROCESS_ARGS
 
-# Parse the -db flag to PicoShare since we need to know it before passing it
+# Parse the -db flag to FemtoShare since we need to know it before passing it
 # along.
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -56,7 +56,7 @@ readonly IS_LITESTREAM_ENABLED
 # Echo commands to stdout.
 set -x
 
-PS_LAUNCH_CMD="$(quote_litestream_command /app/picoshare "${PS_PROCESS_ARGS[@]}")"
+PS_LAUNCH_CMD="$(quote_litestream_command /app/femtoshare "${PS_PROCESS_ARGS[@]}")"
 readonly PS_LAUNCH_CMD
 
 if [[ "${IS_LITESTREAM_ENABLED}" == 'true' ]]; then
@@ -74,9 +74,9 @@ if [[ "${IS_LITESTREAM_ENABLED}" == 'true' ]]; then
     /app/litestream restore -if-replica-exists "${DB_PATH}"
   fi
 
-  # Let Litestream start PicoShare as a child process
+  # Let Litestream start FemtoShare as a child process
   exec /app/litestream replicate -exec "$PS_LAUNCH_CMD"
 else
   echo "Starting without litestream"
-  exec /app/picoshare "${PS_PROCESS_ARGS[@]}"
+  exec /app/femtoshare "${PS_PROCESS_ARGS[@]}"
 fi

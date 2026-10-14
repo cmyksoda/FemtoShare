@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/mtlynch/picoshare/space"
+import "github.com/cmyksoda/femtoshare/space"
 
-// SpaceCheckFunc measures PicoShare storage usage.
+// SpaceCheckFunc measures FemtoShare storage usage.
 type SpaceCheckFunc func() (space.Usage, error)

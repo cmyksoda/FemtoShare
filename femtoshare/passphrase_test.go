@@ -1,10 +1,10 @@
-package picoshare_test
+package femtoshare_test
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 func TestNewPassphrase(t *testing.T) {
@@ -30,17 +30,17 @@ func TestNewPassphrase(t *testing.T) {
 		},
 		{
 			explanation:     "100 ASCII characters are valid",
-			input:           strings.Repeat("a", picoshare.MaxPassphraseLength),
+			input:           strings.Repeat("a", femtoshare.MaxPassphraseLength),
 			isValidExpected: true,
 		},
 		{
 			explanation:     "100 emoji are valid",
-			input:           strings.Repeat("🔒", picoshare.MaxPassphraseLength),
+			input:           strings.Repeat("🔒", femtoshare.MaxPassphraseLength),
 			isValidExpected: true,
 		},
 		{
 			explanation:     "101 Unicode code points are invalid",
-			input:           strings.Repeat("🔒", picoshare.MaxPassphraseLength+1),
+			input:           strings.Repeat("🔒", femtoshare.MaxPassphraseLength+1),
 			isValidExpected: false,
 		},
 		{
@@ -65,7 +65,7 @@ func TestNewPassphrase(t *testing.T) {
 		},
 	} {
 		t.Run(tt.explanation, func(t *testing.T) {
-			passphrase, err := picoshare.NewPassphrase(tt.input)
+			passphrase, err := femtoshare.NewPassphrase(tt.input)
 			isValid := err == nil
 			if got, want := isValid, tt.isValidExpected; got != want {
 				t.Fatalf("NewPassphrase validity=%t, want=%t", got, want)
@@ -81,11 +81,11 @@ func TestNewPassphrase(t *testing.T) {
 }
 
 func TestDownloadPassphraseEmpty(t *testing.T) {
-	if got, want := (picoshare.DownloadPassphrase{}).Empty(), true; got != want {
+	if got, want := (femtoshare.DownloadPassphrase{}).Empty(), true; got != want {
 		t.Errorf("empty=%v, want=%v", got, want)
 	}
 
-	passphrase, err := picoshare.NewDownloadPassphrase("correct horse battery staple")
+	passphrase, err := femtoshare.NewDownloadPassphrase("correct horse battery staple")
 	if err != nil {
 		t.Fatalf("failed to create download passphrase: %v", err)
 	}
@@ -97,26 +97,26 @@ func TestDownloadPassphraseEmpty(t *testing.T) {
 func TestDownloadPassphraseEqual(t *testing.T) {
 	for _, tt := range []struct {
 		explanation   string
-		a             picoshare.DownloadPassphrase
-		b             picoshare.DownloadPassphrase
+		a             femtoshare.DownloadPassphrase
+		b             femtoshare.DownloadPassphrase
 		equalExpected bool
 	}{
 		{
 			explanation:   "two empty passphrases are equal",
-			a:             picoshare.DownloadPassphrase{},
-			b:             picoshare.DownloadPassphrase{},
+			a:             femtoshare.DownloadPassphrase{},
+			b:             femtoshare.DownloadPassphrase{},
 			equalExpected: true,
 		},
 		{
 			explanation:   "an empty passphrase does not equal a non-empty passphrase",
-			a:             picoshare.DownloadPassphrase{},
+			a:             femtoshare.DownloadPassphrase{},
 			b:             mustCreateDownloadPassphrase(t, "correct horse battery staple"),
 			equalExpected: false,
 		},
 		{
 			explanation:   "a non-empty passphrase does not equal an empty passphrase",
 			a:             mustCreateDownloadPassphrase(t, "correct horse battery staple"),
-			b:             picoshare.DownloadPassphrase{},
+			b:             femtoshare.DownloadPassphrase{},
 			equalExpected: false,
 		},
 		{
@@ -152,10 +152,10 @@ func TestDownloadPassphraseEqual(t *testing.T) {
 	}
 }
 
-func mustCreateDownloadPassphrase(t *testing.T, raw string) picoshare.DownloadPassphrase {
+func mustCreateDownloadPassphrase(t *testing.T, raw string) femtoshare.DownloadPassphrase {
 	t.Helper()
 
-	passphrase, err := picoshare.NewDownloadPassphrase(raw)
+	passphrase, err := femtoshare.NewDownloadPassphrase(raw)
 	if err != nil {
 		t.Fatalf("failed to create download passphrase %q: %v", raw, err)
 	}

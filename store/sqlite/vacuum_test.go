@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store/sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store/sqlite"
 )
 
 const largeFileBytes = 8 << 20
@@ -20,7 +20,7 @@ func TestReplaceEntryFileShrinksDatabaseFile(t *testing.T) {
 	dataStore := sqlite.New(sqlite.Params{Path: path, Now: time.Now})
 	mustInsertLargeEntry(t, dataStore, path)
 
-	if err := dataStore.ReplaceEntryFile(picoshare.MustCreateEntryID("abcdefghij"), strings.NewReader("small"), "video/mp4", "clip.mp4"); err != nil {
+	if err := dataStore.ReplaceEntryFile(femtoshare.MustCreateEntryID("abcdefghij"), strings.NewReader("small"), "video/mp4", "clip.mp4"); err != nil {
 		t.Fatalf("failed to replace entry file: %v", err)
 	}
 
@@ -34,7 +34,7 @@ func TestDeleteEntryShrinksDatabaseFile(t *testing.T) {
 	dataStore := sqlite.New(sqlite.Params{Path: path, Now: time.Now})
 	mustInsertLargeEntry(t, dataStore, path)
 
-	if err := dataStore.DeleteEntry(picoshare.MustCreateEntryID("abcdefghij")); err != nil {
+	if err := dataStore.DeleteEntry(femtoshare.MustCreateEntryID("abcdefghij")); err != nil {
 		t.Fatalf("failed to delete entry: %v", err)
 	}
 
@@ -80,8 +80,8 @@ func TestNewEnablesIncrementalVacuumOnExistingDatabase(t *testing.T) {
 func mustInsertLargeEntry(t *testing.T, dataStore sqlite.Store, path string) {
 	t.Helper()
 	data := bytes.Repeat([]byte("x"), largeFileBytes)
-	if err := dataStore.InsertEntry(bytes.NewReader(data), picoshare.UploadMetadata{
-		ID:          picoshare.MustCreateEntryID("abcdefghij"),
+	if err := dataStore.InsertEntry(bytes.NewReader(data), femtoshare.UploadMetadata{
+		ID:          femtoshare.MustCreateEntryID("abcdefghij"),
 		Filename:    "clip.mov",
 		ContentType: "video/quicktime",
 		Uploaded:    mustParseTime("2025-05-25T00:00:00Z"),

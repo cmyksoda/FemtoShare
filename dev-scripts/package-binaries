@@ -43,7 +43,7 @@ for d in ./*_*; do
   tar \
     --create \
     --compress \
-    --file="${OUTPUT_DIR}/picoshare-v${VERSION}-${OS}-${ARCH}.tar.gz" \
-    picoshare
+    --file="${OUTPUT_DIR}/femtoshare-v${VERSION}-${OS}-${ARCH}.tar.gz" \
+    femtoshare
   popd
 done

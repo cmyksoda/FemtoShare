@@ -5,12 +5,12 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
 )
 
 type (
 	DatabaseMetadataReader interface {
-		GetEntriesMetadata() ([]picoshare.UploadMetadata, error)
+		GetEntriesMetadata() ([]femtoshare.UploadMetadata, error)
 	}
 
 	DatabaseChecker struct {

@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
 )
 
 func TestFileNote(t *testing.T) {
@@ -13,7 +13,7 @@ func TestFileNote(t *testing.T) {
 		description string
 		input       string
 		valid       bool
-		output      picoshare.FileNote
+		output      femtoshare.FileNote
 	}{
 		{
 			description: "valid message",
@@ -31,13 +31,13 @@ func TestFileNote(t *testing.T) {
 			description: "message of maximum length with multibyte Unicode characters",
 			input:       strings.Repeat("Ö", parse.MaxFileNoteBytes),
 			valid:       false,
-			output:      picoshare.FileNote{},
+			output:      femtoshare.FileNote{},
 		},
 		{
 			description: "empty note",
 			input:       "",
 			valid:       true,
-			output:      picoshare.FileNote{},
+			output:      femtoshare.FileNote{},
 		},
 		{
 			description: "note that's too long",
@@ -85,6 +85,6 @@ func TestFileNote(t *testing.T) {
 	}
 }
 
-func makeFileNote(s string) picoshare.FileNote {
-	return picoshare.FileNote{Value: &s}
+func makeFileNote(s string) femtoshare.FileNote {
+	return femtoshare.FileNote{Value: &s}
 }

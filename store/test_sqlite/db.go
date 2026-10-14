@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/random"
-	"github.com/mtlynch/picoshare/store/sqlite"
+	"github.com/cmyksoda/femtoshare/random"
+	"github.com/cmyksoda/femtoshare/store/sqlite"
 )
 
 const optimizeForLitestream = false
@@ -28,7 +28,7 @@ func newWithChunkSize(chunkSize uint64) sqlite.Store {
 		Now: func() time.Time {
 			return time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
 		},
-		PicoShareChunkSize: chunkSize,
+		FemtoShareChunkSize: chunkSize,
 	})
 }
 

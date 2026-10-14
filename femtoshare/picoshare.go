@@ -1,11 +1,11 @@
-package picoshare
+package femtoshare
 
 import (
 	"fmt"
 	"io"
 	"time"
 
-	"github.com/mtlynch/picoshare/random"
+	"github.com/cmyksoda/femtoshare/random"
 )
 
 type (
@@ -29,7 +29,7 @@ type (
 		DownloadCount uint64
 		// DownloadPassphrase is empty when downloads do not require a passphrase.
 		//
-		// PicoShare intentionally stores download passphrases in plaintext instead
+		// FemtoShare intentionally stores download passphrases in plaintext instead
 		// of hashing them. The server owner assigns every download passphrase, so
 		// they are not user credentials that a hash would protect, and hashing
 		// would stop the owner from reading or changing a passphrase later.

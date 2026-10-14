@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mtlynch/picoshare/space/checkers"
+	"github.com/cmyksoda/femtoshare/space/checkers"
 )
 
 type mockFileSizer struct {
@@ -59,7 +59,7 @@ func TestMeasureUsage(t *testing.T) {
 		fsStatsErr    error
 		fs            mockFileSystem
 		dbPath        string
-		usageExpected checkers.PicoShareUsage
+		usageExpected checkers.FemtoShareUsage
 		errExpected   error
 	}{
 		{
@@ -77,8 +77,8 @@ func TestMeasureUsage(t *testing.T) {
 				"/dummy/other-file.db": mockFileSizer{200},
 			},
 			dbPath: "/dummy/store.db",
-			usageExpected: checkers.PicoShareUsage{
-				PicoShareDbFileSize: 55,
+			usageExpected: checkers.FemtoShareUsage{
+				FemtoShareDbFileSize: 55,
 				FileSystemUsage: checkers.FileSystemUsage{
 					UsedBytes:  100,
 					TotalBytes: 150,
@@ -92,7 +92,7 @@ func TestMeasureUsage(t *testing.T) {
 			fsStatsErr:    errDummyFsStats,
 			fs:            mockFileSystem{},
 			dbPath:        "/dummy/store.db",
-			usageExpected: checkers.PicoShareUsage{},
+			usageExpected: checkers.FemtoShareUsage{},
 			errExpected:   errDummyFsStats,
 		},
 		{
@@ -110,7 +110,7 @@ func TestMeasureUsage(t *testing.T) {
 				"/dummy/other-file.db": mockFileSizer{200},
 			},
 			dbPath:        "/dummy/store.db",
-			usageExpected: checkers.PicoShareUsage{},
+			usageExpected: checkers.FemtoShareUsage{},
 			errExpected:   checkers.ErrNegativeFileSize,
 		},
 		{
@@ -128,7 +128,7 @@ func TestMeasureUsage(t *testing.T) {
 				"/dummy/other-file.db": mockFileSizer{200},
 			},
 			dbPath:        "/dummy/store.db",
-			usageExpected: checkers.PicoShareUsage{},
+			usageExpected: checkers.FemtoShareUsage{},
 			errExpected:   checkers.ErrSizeOverflow,
 		},
 	} {

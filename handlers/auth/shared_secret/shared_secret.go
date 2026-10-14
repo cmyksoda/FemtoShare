@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/mtlynch/picoshare/handlers/auth/shared_secret/kdf"
-	"github.com/mtlynch/picoshare/picoshare"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers/auth/shared_secret/kdf"
 )
 
 const (
@@ -32,11 +32,11 @@ type SharedSecretAuthenticator struct {
 }
 
 type sessionStartRequest struct {
-	Passphrase picoshare.Passphrase
+	Passphrase femtoshare.Passphrase
 }
 
 // New creates a new SharedSecretAuthenticator.
-func New(passphrase picoshare.Passphrase) SharedSecretAuthenticator {
+func New(passphrase femtoshare.Passphrase) SharedSecretAuthenticator {
 	return SharedSecretAuthenticator{
 		serverKey: kdf.DeriveKey(passphrase),
 	}
@@ -99,7 +99,7 @@ func parseSessionStartRequest(r *http.Request) (sessionStartRequest, error) {
 	if err := decoder.Decode(&body); err != nil {
 		return sessionStartRequest{}, ErrMalformedRequest
 	}
-	passphrase, err := picoshare.NewPassphrase(body.SharedSecretKey)
+	passphrase, err := femtoshare.NewPassphrase(body.SharedSecretKey)
 	if err != nil {
 		return sessionStartRequest{}, err
 	}

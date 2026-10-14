@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/handlers"
-	"github.com/mtlynch/picoshare/handlers/auth/shared_secret"
-	"github.com/mtlynch/picoshare/handlers/parse"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store/test_sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers"
+	"github.com/cmyksoda/femtoshare/handlers/auth/shared_secret"
+	"github.com/cmyksoda/femtoshare/handlers/parse"
+	"github.com/cmyksoda/femtoshare/store/test_sqlite"
 )
 
 type mockAuthenticator struct{}
@@ -68,7 +68,7 @@ func TestEntryPost(t *testing.T) {
 			description:        "invalid download passphrase is rejected",
 			filename:           "dummyimage.png",
 			contents:           "dummy bytes",
-			downloadPassphrase: strings.Repeat("a", picoshare.MaxPassphraseLength+1),
+			downloadPassphrase: strings.Repeat("a", femtoshare.MaxPassphraseLength+1),
 			expiration:         "2040-01-01T00:00:00Z",
 			status:             http.StatusBadRequest,
 		},
@@ -146,12 +146,12 @@ func TestEntryPost(t *testing.T) {
 				t.Fatalf("response is not valid JSON: %v", body)
 			}
 
-			entry, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID(response.ID))
+			entry, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID(response.ID))
 			if err != nil {
 				t.Fatalf("failed to get expected entry %v from data store: %v", response.ID, err)
 			}
 
-			if got, want := entry.Filename, picoshare.Filename(tt.filename); got != want {
+			if got, want := entry.Filename, femtoshare.Filename(tt.filename); got != want {
 				t.Errorf("filename=%v, want=%v", got, want)
 			}
 
@@ -178,8 +178,8 @@ func TestEntryPost(t *testing.T) {
 func TestEntryPut(t *testing.T) {
 	type fakeEntry struct {
 		ID                 string
-		Filename           picoshare.Filename
-		Expires            picoshare.ExpirationTime
+		Filename           femtoshare.Filename
+		Expires            femtoshare.ExpirationTime
 		DownloadPassphrase string
 	}
 	for _, tt := range []struct {
@@ -188,8 +188,8 @@ func TestEntryPut(t *testing.T) {
 		path                       string
 		payload                    string
 		filenameExpected           string
-		expiresExpected            picoshare.ExpirationTime
-		noteExpected               picoshare.FileNote
+		expiresExpected            femtoshare.ExpirationTime
+		noteExpected               femtoshare.FileNote
 		downloadPassphraseExpected string
 		status                     int
 	}{
@@ -225,7 +225,7 @@ func TestEntryPut(t *testing.T) {
 			}`,
 			filenameExpected: "cool-song.mp3",
 			noteExpected:     makeNote("My latest track"),
-			expiresExpected:  picoshare.NeverExpire,
+			expiresExpected:  femtoshare.NeverExpire,
 			status:           http.StatusOK,
 		},
 		{
@@ -242,7 +242,7 @@ func TestEntryPut(t *testing.T) {
 				"note":"My latest track"
 			}`,
 			filenameExpected: "original-filename.mp3",
-			noteExpected:     picoshare.FileNote{},
+			noteExpected:     femtoshare.FileNote{},
 			expiresExpected:  mustParseExpirationTime("2024-12-15T21:52:33Z"),
 			status:           http.StatusBadRequest,
 		},
@@ -261,7 +261,7 @@ func TestEntryPut(t *testing.T) {
 			}`,
 			filenameExpected: "original-filename.mp3",
 			expiresExpected:  mustParseExpirationTime("2024-12-15T21:52:33Z"),
-			noteExpected:     picoshare.FileNote{},
+			noteExpected:     femtoshare.FileNote{},
 			status:           http.StatusBadRequest,
 		},
 		{
@@ -279,7 +279,7 @@ func TestEntryPut(t *testing.T) {
 			}`,
 			filenameExpected: "original-filename.mp3",
 			expiresExpected:  mustParseExpirationTime("2024-12-15T21:52:33Z"),
-			noteExpected:     picoshare.FileNote{},
+			noteExpected:     femtoshare.FileNote{},
 			status:           http.StatusNotFound,
 		},
 		{
@@ -397,10 +397,10 @@ func TestEntryPut(t *testing.T) {
 				"filename": "cool-song.mp3",
 				"expiration": "2029-01-02T01:02:03Z",
 				"note":"My latest track",
-				"downloadPassphrase": "` + strings.Repeat("a", picoshare.MaxPassphraseLength+1) + `"
+				"downloadPassphrase": "` + strings.Repeat("a", femtoshare.MaxPassphraseLength+1) + `"
 			}`,
 			filenameExpected:           "original-filename.mp3",
-			noteExpected:               picoshare.FileNote{},
+			noteExpected:               femtoshare.FileNote{},
 			expiresExpected:            mustParseExpirationTime("2024-12-15T21:52:33Z"),
 			downloadPassphraseExpected: "correct horse battery staple",
 			status:                     http.StatusBadRequest,
@@ -409,13 +409,13 @@ func TestEntryPut(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			dataStore := test_sqlite.New(t)
 			originalData := "dummy original data"
-			metadata := picoshare.UploadMetadata{
-				ID:          picoshare.MustCreateEntryID(tt.entryInStore.ID),
+			metadata := femtoshare.UploadMetadata{
+				ID:          femtoshare.MustCreateEntryID(tt.entryInStore.ID),
 				Filename:    tt.entryInStore.Filename,
-				ContentType: picoshare.ContentType("audio/mpeg"),
+				ContentType: femtoshare.ContentType("audio/mpeg"),
 				Uploaded:    mustParseTime("2023-01-01T00:00:00Z"),
 				Expires:     tt.entryInStore.Expires,
-				Note:        picoshare.FileNote{},
+				Note:        femtoshare.FileNote{},
 			}
 			metadata.Size = mustParseFileSize(len(originalData))
 			if tt.entryInStore.DownloadPassphrase != "" {
@@ -439,12 +439,12 @@ func TestEntryPut(t *testing.T) {
 				t.Fatalf("status=%d, want=%d", got, want)
 			}
 
-			entry, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID(tt.entryInStore.ID))
+			entry, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID(tt.entryInStore.ID))
 			if err != nil {
 				t.Fatalf("failed to get expected entry %v from data store: %v", tt.entryInStore.ID, err)
 			}
 
-			if got, want := entry.Filename, picoshare.Filename(tt.filenameExpected); got != want {
+			if got, want := entry.Filename, femtoshare.Filename(tt.filenameExpected); got != want {
 				t.Errorf("filename=%v, want=%v", got, want)
 			}
 
@@ -460,7 +460,7 @@ func TestEntryPut(t *testing.T) {
 }
 
 func TestGuestUpload(t *testing.T) {
-	passphrase, err := picoshare.NewPassphrase("dummypass")
+	passphrase, err := femtoshare.NewPassphrase("dummypass")
 	if err != nil {
 		t.Fatalf("failed to create passphrase: %v", err)
 	}
@@ -468,22 +468,22 @@ func TestGuestUpload(t *testing.T) {
 
 	for _, tt := range []struct {
 		description                string
-		guestLinkInStore           picoshare.GuestLink
-		entriesInStore             []picoshare.UploadEntry
+		guestLinkInStore           femtoshare.GuestLink
+		entriesInStore             []femtoshare.UploadEntry
 		currentTime                time.Time
 		url                        string
 		note                       string
 		downloadPassphrase         string
 		status                     int
-		fileExpirationTimeExpected picoshare.ExpirationTime
+		fileExpirationTimeExpected femtoshare.ExpirationTime
 	}{
 		{
 			description: "valid upload to guest link whose files never expire",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
@@ -492,155 +492,155 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "expired guest link",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2024-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			status:                     http.StatusUnauthorized,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "disabled guest link",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
-				UrlExpires:      picoshare.NeverExpire,
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				UrlExpires:      femtoshare.NeverExpire,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 				IsDisabled:      true,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			status:                     http.StatusUnauthorized,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "invalid guest link",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/i-am-an-invalid-guest-link?expiration=2030-01-01T00:00:00Z", // Too long
 			status:                     http.StatusBadRequest,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "invalid guest link",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/I0OI0OI0OI0OI0OI?expiration=2030-01-01T00:00:00Z", // Contains all invalid characters
 			status:                     http.StatusBadRequest,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "non-existent guest link",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2024-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/doesntexistaaaaa?expiration=2030-01-01T00:00:00Z",
 			status:                     http.StatusNotFound,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "reject upload that includes a note",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			note:                       "I'm a disallowed note",
 			status:                     http.StatusBadRequest,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "reject upload that includes a download passphrase",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			downloadPassphrase:         "correct horse battery staple",
 			status:                     http.StatusBadRequest,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "exhausted upload count",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
 				MaxFileUploads:  makeGuestUploadCountLimit(2),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
-			entriesInStore: []picoshare.UploadEntry{
+			entriesInStore: []femtoshare.UploadEntry{
 				{
-					UploadMetadata: picoshare.UploadMetadata{
-						ID:       picoshare.MustCreateEntryID("AAAAAAAAAA"),
+					UploadMetadata: femtoshare.UploadMetadata{
+						ID:       femtoshare.MustCreateEntryID("AAAAAAAAAA"),
 						Uploaded: mustParseTime("2024-02-01T00:00:00Z"),
-						GuestLink: picoshare.GuestLink{
-							ID: picoshare.GuestLinkID("abcdefgh23456789"),
+						GuestLink: femtoshare.GuestLink{
+							ID: femtoshare.GuestLinkID("abcdefgh23456789"),
 						},
-						Expires: picoshare.NeverExpire,
+						Expires: femtoshare.NeverExpire,
 					},
 				},
 				{
-					UploadMetadata: picoshare.UploadMetadata{
-						ID:       picoshare.MustCreateEntryID("BBBBBBBBBB"),
+					UploadMetadata: femtoshare.UploadMetadata{
+						ID:       femtoshare.MustCreateEntryID("BBBBBBBBBB"),
 						Uploaded: mustParseTime("2024-02-02T00:00:00Z"),
-						GuestLink: picoshare.GuestLink{
-							ID: picoshare.GuestLinkID("abcdefgh23456789"),
+						GuestLink: femtoshare.GuestLink{
+							ID: femtoshare.GuestLinkID("abcdefgh23456789"),
 						},
-						Expires: picoshare.NeverExpire,
+						Expires: femtoshare.NeverExpire,
 					},
 				},
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			status:                     http.StatusUnauthorized,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "exhausted upload bytes",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2024-01-01T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
 				MaxFileBytes:    makeGuestUploadMaxFileBytes(1),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2030-01-01T00:00:00Z",
 			status:                     http.StatusBadRequest,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "guest file expires in 1 day",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(1),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(1),
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2024-01-02T00:00:00Z",
@@ -649,11 +649,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest file expires in 365 days",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(365),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(365),
 			},
 			currentTime:                mustParseTime("2023-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2024-01-01T00:00:00Z",
@@ -662,11 +662,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest upload with valid expiration within guest link limits",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(30),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(30),
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2024-01-15T00:00:00Z",
@@ -675,11 +675,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest upload with infinite guest link accepts any expiration",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2025-01-01T00:00:00Z",
@@ -688,11 +688,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "reject guest upload with expiration that exceeds guest link limit",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(7),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(7),
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=2024-01-31T00:00:00Z",
@@ -701,11 +701,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest upload without expiration defaults to max allowed (30 days)",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(30),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(30),
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789",
@@ -714,11 +714,11 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest upload with empty expiration defaults to max allowed (30 days)",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.NewFileLifetimeInDays(30),
+				MaxFileLifetime: femtoshare.NewFileLifetimeInDays(30),
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=",
@@ -727,29 +727,29 @@ func TestGuestUpload(t *testing.T) {
 		},
 		{
 			description: "guest upload without expiration defaults to never expire (infinite)",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789",
 			status:                     http.StatusOK,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 		{
 			description: "guest upload with empty expiration defaults to never expire (infinite)",
-			guestLinkInStore: picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLinkInStore: femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			currentTime:                mustParseTime("2024-01-01T00:00:00Z"),
 			url:                        "/api/guest/abcdefgh23456789?expiration=",
 			status:                     http.StatusOK,
-			fileExpirationTimeExpected: picoshare.NeverExpire,
+			fileExpirationTimeExpected: femtoshare.NeverExpire,
 		},
 	} {
 		t.Run(tt.description, func(t *testing.T) {
@@ -817,12 +817,12 @@ func TestGuestUpload(t *testing.T) {
 				t.Fatalf("response is not valid JSON: %v", body)
 			}
 
-			entry, err := dataStore.GetEntryMetadata(picoshare.MustCreateEntryID(response.ID))
+			entry, err := dataStore.GetEntryMetadata(femtoshare.MustCreateEntryID(response.ID))
 			if err != nil {
 				t.Fatalf("failed to get expected entry %v from data store: %v", response.ID, err)
 			}
 
-			if got, want := entry.Filename, picoshare.Filename(filename); got != want {
+			if got, want := entry.Filename, femtoshare.Filename(filename); got != want {
 				t.Errorf("filename=%v, want=%v", got, want)
 			}
 
@@ -842,7 +842,7 @@ func TestGuestUpload(t *testing.T) {
 }
 
 func TestGuestUploadAcceptHeader(t *testing.T) {
-	passphrase, err := picoshare.NewPassphrase("dummypass")
+	passphrase, err := femtoshare.NewPassphrase("dummypass")
 	if err != nil {
 		t.Fatalf("failed to create passphrase: %v", err)
 	}
@@ -881,11 +881,11 @@ func TestGuestUploadAcceptHeader(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("%s [%s]", tt.explanation, tt.acceptHeader), func(t *testing.T) {
 			dataStore := test_sqlite.New(t)
-			guestLink := picoshare.GuestLink{
-				ID:              picoshare.GuestLinkID("abcdefgh23456789"),
+			guestLink := femtoshare.GuestLink{
+				ID:              femtoshare.GuestLinkID("abcdefgh23456789"),
 				Created:         mustParseTime("2022-05-26T00:00:00Z"),
 				UrlExpires:      mustParseExpirationTime("2030-01-02T03:04:25Z"),
-				MaxFileLifetime: picoshare.FileLifetimeInfinite,
+				MaxFileLifetime: femtoshare.FileLifetimeInfinite,
 			}
 			if err := dataStore.InsertGuestLink(guestLink); err != nil {
 				t.Fatalf("failed to insert dummy guest link: %v", err)
@@ -985,11 +985,11 @@ func mustParseTime(s string) time.Time {
 	return t
 }
 
-func mustParseExpirationTime(s string) picoshare.ExpirationTime {
-	return picoshare.ExpirationTime(mustParseTime(s))
+func mustParseExpirationTime(s string) femtoshare.ExpirationTime {
+	return femtoshare.ExpirationTime(mustParseTime(s))
 }
 
-func downloadPassphraseToString(p picoshare.DownloadPassphrase) string {
+func downloadPassphraseToString(p femtoshare.DownloadPassphrase) string {
 	if p.Empty() {
 		return ""
 	}
@@ -1004,12 +1004,12 @@ func mustReadAll(r io.Reader) []byte {
 	return d
 }
 
-func makeNote(s string) picoshare.FileNote {
-	return picoshare.FileNote{Value: &s}
+func makeNote(s string) femtoshare.FileNote {
+	return femtoshare.FileNote{Value: &s}
 }
 
-func mustParseFileSize(val int) picoshare.FileSize {
-	fileSize, err := picoshare.FileSizeFromInt(val)
+func mustParseFileSize(val int) femtoshare.FileSize {
+	fileSize, err := femtoshare.FileSizeFromInt(val)
 	if err != nil {
 		panic(err)
 	}

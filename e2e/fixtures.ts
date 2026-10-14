@@ -47,7 +47,7 @@ async function waitForServer(
   while (Date.now() < deadline) {
     if (child.exitCode !== null) {
       throw new Error(
-        `PicoShare exited with code ${child.exitCode} during startup.\n${getDiagnostics()}`,
+        `FemtoShare exited with code ${child.exitCode} during startup.\n${getDiagnostics()}`,
       );
     }
 
@@ -64,7 +64,7 @@ async function waitForServer(
   }
 
   throw new Error(
-    `PicoShare did not start at ${baseURL}: ${lastRequestError}.\n${getDiagnostics()}`,
+    `FemtoShare did not start at ${baseURL}: ${lastRequestError}.\n${getDiagnostics()}`,
   );
 }
 
@@ -72,11 +72,11 @@ async function stopServer(
   child: ChildProcessWithoutNullStreams,
 ): Promise<void> {
   if (child.pid === undefined) {
-    throw new Error("PicoShare process did not start");
+    throw new Error("FemtoShare process did not start");
   }
   if (child.exitCode !== null || child.signalCode !== null) {
     throw new Error(
-      `PicoShare exited before teardown with code ${child.exitCode} and signal ${child.signalCode}`,
+      `FemtoShare exited before teardown with code ${child.exitCode} and signal ${child.signalCode}`,
     );
   }
 
@@ -89,7 +89,7 @@ async function stopServer(
   if (stopped !== undefined) {
     if (stopped.code !== 0 || stopped.signal !== null) {
       throw new Error(
-        `PicoShare stopped with code ${stopped.code} and signal ${stopped.signal}`,
+        `FemtoShare stopped with code ${stopped.code} and signal ${stopped.signal}`,
       );
     }
     return;
@@ -98,22 +98,22 @@ async function stopServer(
   child.kill("SIGKILL");
   await exit;
   throw new Error(
-    `PicoShare did not stop within ${serverShutdownTimeoutMs} ms and required SIGKILL`,
+    `FemtoShare did not stop within ${serverShutdownTimeoutMs} ms and required SIGKILL`,
   );
 }
 
 export const test = base.extend({
-  // This fixture owns PicoShare's complete lifecycle for one test. A unique
+  // This fixture owns FemtoShare's complete lifecycle for one test. A unique
   // process, port, temporary directory, and SQLite file prevent parallel tests
   // from sharing application or database state. The fixture waits for a real
   // HTTP response before handing the URL to Playwright, then records process
   // output and removes all temporary state after the test finishes.
   baseURL: async ({}, use, testInfo) => {
     const port = await getAvailablePort();
-    const testDirectory = await mkdtemp(join(tmpdir(), "picoshare-e2e-"));
+    const testDirectory = await mkdtemp(join(tmpdir(), "femtoshare-e2e-"));
     const dbPath = join(testDirectory, "store.db");
     const baseURL = `http://127.0.0.1:${port}`;
-    const binary = resolve("bin/picoshare-dev");
+    const binary = resolve("bin/femtoshare-dev");
     const child = spawn(binary, ["-db", dbPath], {
       cwd: testDirectory,
       env: {
@@ -142,7 +142,7 @@ export const test = base.extend({
 
     const getDiagnostics = (): string => {
       const error = spawnError ? `spawn error: ${spawnError.message}\n` : "";
-      return `${error}PicoShare output:\n${output || "<no output>"}`;
+      return `${error}FemtoShare output:\n${output || "<no output>"}`;
     };
 
     try {
@@ -153,7 +153,7 @@ export const test = base.extend({
         await stopServer(child);
       } finally {
         try {
-          await testInfo.attach("picoshare.log", {
+          await testInfo.attach("femtoshare.log", {
             body: getDiagnostics(),
             contentType: "text/plain",
           });

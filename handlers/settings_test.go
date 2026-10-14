@@ -8,16 +8,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mtlynch/picoshare/handlers"
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store/test_sqlite"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/handlers"
+	"github.com/cmyksoda/femtoshare/store/test_sqlite"
 )
 
 func TestSettingsPut(t *testing.T) {
 	for _, tt := range []struct {
 		description string
 		payload     string
-		settings    picoshare.Settings
+		settings    femtoshare.Settings
 		status      int
 	}{
 		{
@@ -25,8 +25,8 @@ func TestSettingsPut(t *testing.T) {
 			payload: `{
 					"defaultExpirationDays": 7
 				}`,
-			settings: picoshare.Settings{
-				DefaultFileLifetime: picoshare.NewFileLifetimeInDays(7),
+			settings: femtoshare.Settings{
+				DefaultFileLifetime: femtoshare.NewFileLifetimeInDays(7),
 			},
 			status: http.StatusOK,
 		},
@@ -35,8 +35,8 @@ func TestSettingsPut(t *testing.T) {
 			payload: `{
 					"defaultNeverExpire": true
 				}`,
-			settings: picoshare.Settings{
-				DefaultFileLifetime: picoshare.FileLifetimeInfinite,
+			settings: femtoshare.Settings{
+				DefaultFileLifetime: femtoshare.FileLifetimeInfinite,
 			},
 			status: http.StatusOK,
 		},
@@ -45,7 +45,7 @@ func TestSettingsPut(t *testing.T) {
 			payload: `{
 					"defaultExpirationDays": 0
 				}`,
-			settings: picoshare.Settings{},
+			settings: femtoshare.Settings{},
 			status:   http.StatusBadRequest,
 		},
 		{
@@ -53,7 +53,7 @@ func TestSettingsPut(t *testing.T) {
 			payload: `{
 					"defaultExpirationDays": "banana"
 				}`,
-			settings: picoshare.Settings{},
+			settings: femtoshare.Settings{},
 			status:   http.StatusBadRequest,
 		},
 		{
@@ -61,7 +61,7 @@ func TestSettingsPut(t *testing.T) {
 			payload: `{
 					"someIrrelevantField": "banana"
 				}`,
-			settings: picoshare.Settings{},
+			settings: femtoshare.Settings{},
 			status:   http.StatusBadRequest,
 		},
 	} {

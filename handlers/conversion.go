@@ -8,13 +8,13 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mtlynch/picoshare/picoshare"
-	"github.com/mtlynch/picoshare/store"
-	"github.com/mtlynch/picoshare/transcode"
+	"github.com/cmyksoda/femtoshare/femtoshare"
+	"github.com/cmyksoda/femtoshare/store"
+	"github.com/cmyksoda/femtoshare/transcode"
 )
 
 type (
-	ConversionStateFunc func(picoshare.EntryID) transcode.State
+	ConversionStateFunc func(femtoshare.EntryID) transcode.State
 
 	entryConversionResponse struct {
 		State    transcode.State `json:"state"`
@@ -26,7 +26,7 @@ type (
 // convert, since knowing the entry ID already grants download access.
 func (s Server) entryConversionGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := picoshare.EntryIDFromString(mux.Vars(r)["id"])
+		id, err := femtoshare.EntryIDFromString(mux.Vars(r)["id"])
 		if err != nil {
 			log.Printf("error parsing ID: %v", err)
 			http.Error(w, fmt.Sprintf("bad entry ID: %v", err), http.StatusBadRequest)
