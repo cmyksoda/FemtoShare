@@ -17,6 +17,8 @@ func (s Store) Purge() error {
 		return err
 	}
 
+	s.reclaimFreeSpace()
+
 	return nil
 }
 

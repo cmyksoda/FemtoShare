@@ -25,9 +25,10 @@ type (
 	}
 
 	Store struct {
-		db        *sql.DB
-		chunkSize uint64
-		now       func() time.Time
+		db                    *sql.DB
+		chunkSize             uint64
+		optimizeForLitestream bool
+		now                   func() time.Time
 	}
 
 	rowScanner interface {
@@ -62,6 +63,7 @@ func New(params Params) Store {
 	}
 
 	applyMigrations(db)
+	enableIncrementalVacuum(db)
 
 	chunkSize := params.PicoShareChunkSize
 	if chunkSize == 0 {
@@ -69,9 +71,10 @@ func New(params Params) Store {
 	}
 
 	return Store{
-		db:        db,
-		chunkSize: chunkSize,
-		now:       params.Now,
+		db:                    db,
+		chunkSize:             chunkSize,
+		optimizeForLitestream: params.OptimizeForLitestream,
+		now:                   params.Now,
 	}
 }
 

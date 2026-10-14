@@ -303,7 +303,13 @@ func (s Store) ReplaceEntryFile(id picoshare.EntryID, reader io.Reader, contentT
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	s.reclaimFreeSpace()
+
+	return nil
 }
 
 func parseDownloadPassphrase(raw *string) (picoshare.DownloadPassphrase, error) {
@@ -394,5 +400,11 @@ func (s Store) DeleteEntry(id picoshare.EntryID) error {
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	s.reclaimFreeSpace()
+
+	return nil
 }
