@@ -93,7 +93,7 @@ Finally, it's time to deploy your app.
 
 ```bash
 # Change this to the latest Docker image tag
-FEMTOSHARE_IMAGE='cmyksoda/femtoshare:1.0.0'
+FEMTOSHARE_IMAGE='cmyksoda/femtoshare:1.0.1'
 
 fly deploy \
   --region="${REGION}" \
